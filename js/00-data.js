@@ -726,6 +726,7 @@ const DB = {
         "rng_wind": { n: "風靈戒指", type: "acc", slot: "ring", ac: 0, resWind: 10, req: "all", safe: 0, p: 50000, gachaWeight: 1, d: "封存著疾風精魄的戒指，戴上便覺步履輕盈。蘊含疾風之力的戒指。" },
         "rng_fire": { n: "火靈戒指", type: "acc", slot: "ring", ac: 0, resFire: 10, req: "all", safe: 0, p: 50000, gachaWeight: 1, d: "封存著熾烈火魂的戒指，掌心始終餘有一絲溫熱。蘊含烈焰之力的戒指。" },
         "sherine_crystal": { n: "席琳結晶", type: "etc", p: 0, noUse: true, c: "c-sherine", gachaWeight: 0, d: "蘊含席琳力量的珍貴結晶，無法直接使用。進行「席琳製作」時加入材料，可使成品必定附帶一種席琳套裝效果。（席琳的世界掉落限定）" },   // 🔮 潘朵拉抽不到(gachaWeight:0)、無法使用(noUse)、名稱同套裝綠光(c-sherine)
+        "potion_sherine_reroll": { n: "席琳洗鍊藥水", type: "misc", eff: "sherine_reroll", p: 100000, c: "c-sherine", img: "assets/icons/items/藍色藥水.png", gachaWeight: 0, d: "蘊含席琳神力的洗鍊藥水。使用後可選擇武器、防具、內衣、項鍊、腰帶或戒指，隨機重洗為 12 種席琳套裝效果之一；遺物與箭矢不可使用。奇岩村莊的邁爾限定販售。" },
         "item_dragon_claw": { n: "飛龍的爪子", p: 1, c: "text-blue-300", noUse: true, gachaWeight: 0, d: "鋒利如刃的巨爪，仍殘留著撕裂風與骨的記憶，似乎與龍之谷深處的傳說有關……（無法使用）" },   // 🔧 卡瑞任務道具：飛龍 1% 掉落
         "item_lizard_horn": { n: "蜥蜴的角", p: 1, c: "text-blue-300", noUse: true, gachaWeight: 0, d: "邪惡蜥蜴額上隆起的尖角，泛著爬蟲類特有的冷光，似乎與龍之谷深處的傳說有關……（無法使用）" },   // 🔧 卡瑞任務道具：邪惡蜥蜴 0.01% 掉落
         "item_crystal_ball": { n: "水晶球", p: 1, c: "text-blue-300", noUse: true, gachaWeight: 0, d: "巫師用以窺探命運的水晶球，霧色在其中緩緩流轉，似乎與龍之谷深處的傳說有關……（無法使用）" },   // 🔧 卡瑞任務道具：巫師 0.01% 掉落

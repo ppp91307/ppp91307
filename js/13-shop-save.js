@@ -179,7 +179,7 @@ const SHOP_LISTS = {
 };
 // 🔧 商店販售清單（單一來源）：getShopItemsForNpc 與潘朵拉權重覆寫共用此表
 function getShopItemsForNpc(npcId) {
-    let list = SHOP_LISTS[npcId] || SHOP_LISTS.default;
+    let list = npcId === 'npc_meyer' ? SHOP_LISTS.default.concat(['potion_sherine_reroll']) : (SHOP_LISTS[npcId] || SHOP_LISTS.default);
     return list.filter(id => {
         let d = DB.items[id];
         if (!d) return false;

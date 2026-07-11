@@ -248,6 +248,34 @@ function getItemFullName(item) {
 
 // silent=true：自動使用（不寫日誌、瞬移卷軸不引動傳送控制戒指、不進隱藏區域）
 // keepModal=true：非玩家點擊觸發的使用（如自動找 BOSS 的瞬移），不關掉玩家正在看的物品視窗
+function sherinePotionEligible(d) {
+    if (!d || (typeof isRelic === 'function' && isRelic(d)) || d.isArrow) return false;
+    if (d.type === 'wpn') return true;
+    if (d.type === 'arm') return true;
+    return d.type === 'acc' && ['amulet','belt','ring'].includes(d.slot);
+}
+function closeSherineRerollPanel(){let p=document.getElementById('sherine-reroll-panel');if(p)p.remove();}
+window.openSherineReroll=function(potionUid){
+    const potion=player.inv.find(i=>i.uid===potionUid&&i.id==='potion_sherine_reroll'&&i.cnt>0);if(!potion)return;
+    const rows=[];
+    Object.keys(player.eq||{}).forEach(slot=>{const it=player.eq[slot],d=it&&DB.items[it.id];if(it&&sherinePotionEligible(d))rows.push({ref:'eq:'+slot,it,d,where:'已裝備'});});
+    (player.inv||[]).forEach(it=>{const d=it&&DB.items[it.id];if(it&&it.uid!==potionUid&&it.cnt>0&&sherinePotionEligible(d))rows.push({ref:'inv:'+it.uid,it,d,where:'背包'});});
+    if(!rows.length){logSys('背包與裝備欄沒有可使用席琳洗鍊藥水的裝備。');return;}
+    if(typeof closeModal==='function')closeModal();closeSherineRerollPanel();
+    const p=document.createElement('div');p.id='sherine-reroll-panel';p.style.cssText='position:fixed;inset:0;z-index:13000;background:#000c;display:flex;align-items:center;justify-content:center;padding:18px';
+    p.innerHTML=`<div style="width:min(720px,96vw);max-height:88vh;overflow:auto;background:#111827;border:2px solid #10b981;border-radius:14px;padding:18px;color:#e5e7eb;box-shadow:0 20px 70px #000"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px"><div><b style="font-size:24px;color:#6ee7b7">🧪 席琳洗鍊藥水</b><div style="color:#cbd5e1;margin-top:5px">選擇一件裝備，隨機洗出 12 種席琳套裝效果之一。</div></div><button onclick="closeSherineRerollPanel()" style="padding:8px 13px">✕</button></div><div style="display:grid;gap:8px">${rows.map(r=>`<button onclick="applySherineReroll('${potionUid}','${r.ref}')" style="display:flex;justify-content:space-between;align-items:center;text-align:left;padding:12px;border:1px solid #475569;background:#1e293b;border-radius:9px;color:#fff"><span><b>${(r.it.en||0)>0?'+'+(r.it.en||0)+' ':''}${r.d.n}</b><small style="display:block;color:#94a3b8;margin-top:3px">${r.where}${r.it.cnt>1?'・數量 '+r.it.cnt:''}</small></span><span style="color:#6ee7b7">${r.it.seteff?'目前：'+r.it.seteff:'尚無效果'}</span></button>`).join('')}</div><div style="margin-top:13px;color:#fbbf24;font-size:13px">選擇後會再次確認；確認洗鍊才會消耗 1 瓶藥水。已有的效果也能重洗，且不會連續洗到相同效果。</div></div>`;document.body.appendChild(p);
+};
+window.applySherineReroll=function(potionUid,targetRef){
+    const potion=player.inv.find(i=>i.uid===potionUid&&i.id==='potion_sherine_reroll'&&i.cnt>0);if(!potion)return;
+    const parts=targetRef.split(':'),kind=parts.shift(),key=parts.join(':');let target=kind==='eq'?(player.eq&&player.eq[key]):player.inv.find(i=>String(i.uid)===key),d=target&&DB.items[target.id];
+    if(!target||!sherinePotionEligible(d)){logSys('這件物品不能使用席琳洗鍊藥水。');closeSherineRerollPanel();return;}
+    if(!confirm(`確定消耗 1 瓶席琳洗鍊藥水，重洗「${d.n}」的席琳套裝效果？`))return;
+    const pool=SHERINE_EFFECTS.filter(x=>x!==target.seteff),next=pool[Math.floor(Math.random()*pool.length)];
+    if(kind==='inv'&&(target.cnt||1)>1){target.cnt--;target=Object.assign({},target,{uid:uid(),cnt:1,seteff:next});player.inv.push(target);}else target.seteff=next;
+    potion.cnt--;if(potion.cnt<=0)player.inv=player.inv.filter(i=>i.uid!==potionUid);
+    closeSherineRerollPanel();calcStats();renderTabs();updateUI();saveGame();logSys(`<span class="c-sherine font-bold">席琳洗鍊成功：${d.n} → ${next}套裝效果！</span>`);
+};
+
 function useItem(u, silent = false, keepModal = false) {
     let item = player.inv.find(i => i.uid === u);
     if (!item) return;
@@ -256,6 +284,7 @@ function useItem(u, silent = false, keepModal = false) {
     if (item.id === 'scroll_revive') { if(!silent) logSys(`復活卷軸無法從道具欄使用，死亡時可於畫面下方點選『原地復活』。`); return; }
     let d = DB.items[item.id];
     if (d.noUse) { if(!silent) logSys(`此物品無法直接使用。`); return; }
+    if (d.eff === 'sherine_reroll') { if(silent)return; openSherineReroll(item.uid); return; }
 
     // 🎴 卡片收集冊：翻開全螢幕書頁；卡片：登錄圖鑑（已收錄則改賣出）
     if (d.eff === 'cardbook') { if (silent) return; if (typeof openCardBook === 'function') openCardBook(); return; }
