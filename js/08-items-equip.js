@@ -41,7 +41,7 @@ function gainItem(id, cnt=1, silent=false, forceNormal=false, affixOld=false) {
         attr = _af.attr; bless = _af.bless; anc = _af.anc;
     }
 
-    // 🔮 席琳套裝效果：指定部位（武器/頭盔/盔甲/手套/長靴/斗篷/腰帶）※項鍊已改為腰帶
+    // 🔮 席琳套裝效果：指定部位（武器/頭盔/盔甲/脛甲/手套/長靴/斗篷/盾牌/腰帶/項鍊）
     //  - 席琳的世界擊殺掉落：一般怪0.1%、恩賜怪0.5%、頭目5%（9 組均勻抽一；🔮 瘋狂的席琳世界再 ×3）
     //  - 席琳製作（_forceSherineSet）：必定附帶隨機一種
     let seteff = false;
