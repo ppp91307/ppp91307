@@ -328,7 +328,15 @@ const CRAFT_RECIPES = {
     'npc_herbert': [
         { result: 'clk_mr', req: [{ id: 'new_item_189', cnt: 1 }, { id: 'new_item_188', cnt: 10 }, { id: 'new_item_187', cnt: 2 }, { id: 'gold', cnt: 1000 }] },
         { result: 'arm_87', req: [{ id: 'new_item_189', cnt: 10 }, { id: 'new_item_188', cnt: 5 }, { id: 'new_item_187', cnt: 5 }, { id: 'gold', cnt: 20000 }] },
-        { result: 'tsh_tshirt', req: [{ id: 'new_item_189', cnt: 10 }, { id: 'new_item_188', cnt: 3 }, { id: 'new_item_187', cnt: 2 }, { id: 'gold', cnt: 30000 }] }
+        { result: 'tsh_tshirt', req: [{ id: 'new_item_189', cnt: 10 }, { id: 'new_item_188', cnt: 3 }, { id: 'new_item_187', cnt: 2 }, { id: 'gold', cnt: 30000 }] },
+        { result: 'tsh_sturdy', req: [{ id: 'tsh_tshirt', cnt: 1 }, { id: 'new_item_189', cnt: 15 }, { id: 'new_item_188', cnt: 5 }, { id: 'gold', cnt: 50000 }] },
+        { result: 'tsh_hunter', req: [{ id: 'tsh_sturdy', cnt: 1 }, { id: 'new_item_151', cnt: 20 }, { id: 'new_item_154', cnt: 10 }, { id: 'gold', cnt: 80000 }] },
+        { result: 'tsh_berserker', req: [{ id: 'tsh_sturdy', cnt: 1 }, { id: 'new_item_157', cnt: 20 }, { id: 'new_item_160', cnt: 10 }, { id: 'gold', cnt: 80000 }] },
+        { result: 'tsh_arcane', req: [{ id: 'tsh_sturdy', cnt: 1 }, { id: 'new_item_150', cnt: 20 }, { id: 'new_item_155', cnt: 10 }, { id: 'gold', cnt: 90000 }] },
+        { result: 'tsh_prayer', req: [{ id: 'tsh_sturdy', cnt: 1 }, { id: 'new_item_152', cnt: 20 }, { id: 'new_item_156', cnt: 10 }, { id: 'gold', cnt: 90000 }] },
+        { result: 'tsh_elemental', req: [{ id: 'tsh_prayer', cnt: 1 }, { id: 'new_item_151', cnt: 15 }, { id: 'new_item_154', cnt: 15 }, { id: 'new_item_157', cnt: 15 }, { id: 'new_item_160', cnt: 15 }, { id: 'gold', cnt: 150000 }] },
+        { result: 'tsh_dragonblood', req: [{ id: 'tsh_berserker', cnt: 1 }, { id: 'mat_dragon_heart', cnt: 1 }, { id: 'new_item_180', cnt: 100 }, { id: 'gold', cnt: 250000 }] },
+        { result: 'tsh_heroic', req: [{ id: 'tsh_hunter', cnt: 1 }, { id: 'tsh_arcane', cnt: 1 }, { id: 'tsh_elemental', cnt: 1 }, { id: 'tsh_dragonblood', cnt: 1 }, { id: 'new_phoenix_heart', cnt: 1 }, { id: 'gold', cnt: 500000 }] }
     ],
 // 👇 新增海音與歐瑞製作 NPC 的配方
     'npc_lumiel': [
