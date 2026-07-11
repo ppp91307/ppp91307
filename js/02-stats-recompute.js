@@ -729,6 +729,7 @@ const POLY_TIERS = [
     { min:70, max:9999, color:"text-yellow-400", forms:[
         { n:"死亡", lv:70, atk:18, wlk:24, cast:10, stun:7 },
         { n:"反王肯恩", lv:75, atk:20, wlk:18, cast:11, stun:6 },
+        { n:"神話騎士(男)", lv:75, atk:12, wlk:14, cast:9, stun:3, img:"assets/character/poly-mythic-knight-male.png" },
     ]},
 ];
 
@@ -867,9 +868,11 @@ function openPolySelect(uid) {
     for (const t of POLY_TIERS) for (const f of t.forms) if (player.lv >= f.lv) avail.push({ f, color: t.color });
     avail.sort((a, b) => (b.f.lv - a.f.lv) || (a.f.atk - b.f.atk));
     listEl.innerHTML = avail.map(({ f, color }) =>
-        '<button class="btn text-left !py-2 !px-3" onclick="confirmPolySelect(\'' + uid + '\',\'' + f.n + '\')">' +
+        '<button class="btn text-left !py-2 !px-3 flex items-center gap-3" onclick="confirmPolySelect(\'' + uid + '\',\'' + f.n + '\')">' +
+            (f.img ? '<img src="' + f.img + '" alt="" style="width:54px;height:54px;object-fit:contain;border-radius:7px;background:#020617">' : '') + '<span>' +
             '<span class="' + color + ' font-bold"><span class="text-slate-400 text-xs mr-1">Lv' + f.lv + '</span>' + f.n + '</span>' +
             '<span class="text-slate-400 text-xs block mt-0.5">' + polyFormDesc(f) + '</span>' +
+            '</span>' +
         '</button>'
     ).join('');
     modal.classList.remove('hidden');

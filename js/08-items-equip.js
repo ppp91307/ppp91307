@@ -1199,7 +1199,8 @@ function _updateUIImpl() {
     // 處理背景圖片：抓取 player.avatar 決定背景圖 (加上 bg-top 防止頭部裁切)
     let bgImageName = player.avatar || clsDisplayName;
     let bgExt = (player.cls === 'dark' || player.cls === 'illusion' || player.cls === 'dragon' || player.cls === 'warrior' || player.cls === 'royal') ? 'png' : 'jpg';   // 🔧 黑暗妖精／幻術士／龍騎士／戰士／王族頭像為 png，其餘職業為 jpg
-    document.getElementById('status-panel').style.backgroundImage = `url('assets/character/${bgImageName}.${bgExt}')`;
+    let activePolyVisual = player._setPoly || ((player.buffs.poly > 0 && player.poly) ? player.poly : null);
+    document.getElementById('status-panel').style.backgroundImage = activePolyVisual && activePolyVisual.img ? `url('${activePolyVisual.img}')` : `url('assets/character/${bgImageName}.${bgExt}')`;
     document.getElementById('status-panel').classList.add('bg-top'); // 確保圖片從頂部對齊
 
     document.getElementById('st-ac').innerText = player.d.ac;
