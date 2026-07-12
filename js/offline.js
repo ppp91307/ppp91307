@@ -626,7 +626,7 @@
     function maintainedBuffSet() {
       var s = {};
       try {
-        [['set-haste', 'haste'], ['set-brave', 'brave'], ['set-blue', 'blue'], ['set-cautious', 'cautious'],
+        [['set-haste', 'haste'], ['set-brave', 'brave'], ['set-chocolate-cake', 'chocolate_cake'], ['set-blue', 'blue'], ['set-cautious', 'cautious'],
          ['set-elfcookie', 'elfcookie'], ['set-poly', 'poly'], ['set-magicbarrier', 'sk_magic_shield']].forEach(function (c) {
           var el = document.getElementById(c[0]); if (el && el.checked) s[c[1]] = 1;
         });
@@ -645,7 +645,7 @@
           if (player.gold >= 100 * unit) { player.gold -= 100 * unit; gainItem(id, 100, true, true); return true; }
           return false;
         }
-        var buyChk = { potion_haste: 'set-auto-buy-haste', potion_brave: 'set-auto-buy-brave', potion_blue: 'set-auto-buy-blue', new_item_140: 'set-auto-buy-cautious', new_item_139: 'set-auto-buy-elfcookie', scroll_poly: 'set-auto-buy-poly', scroll_teleport: 'set-auto-buy-teleport' }[id];
+        var buyChk = { potion_haste: 'set-auto-buy-haste', potion_brave: 'set-auto-buy-brave', food_chocolate_cake: 'set-auto-buy-chocolate-cake', potion_blue: 'set-auto-buy-blue', new_item_140: 'set-auto-buy-cautious', new_item_139: 'set-auto-buy-elfcookie', scroll_poly: 'set-auto-buy-poly', scroll_teleport: 'set-auto-buy-teleport' }[id];
         if (buyChk && on(buyChk)) {   // 增益藥水/卷軸:買 1 瓶(同 autoActions)
           var p = shopPrice(DB.items[id].p);
           if (player.gold >= p) { player.gold -= p; gainItem(id, 1, true, true); return true; }

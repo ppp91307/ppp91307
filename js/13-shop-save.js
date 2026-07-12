@@ -588,7 +588,7 @@ function startGame() {
     player.skills = [];
     player.summon = null; player.charmed = null; player.manualCd = {}; player.hot = null; player.hots = {}; player.elfEle = null; player.buffs = { haste: 0, brave: 0, blue: 0, cautious: 0, elfcookie: 0, chocolate_cake: 0, poly: 0, shield: 0 };
     
-    ['set-haste', 'set-brave', 'set-blue', 'set-cautious', 'set-poly', 'set-auto-buy-pot', 'set-auto-buy-arrow'].forEach(id => {
+    ['set-haste', 'set-brave', 'set-chocolate-cake', 'set-auto-buy-chocolate-cake', 'set-blue', 'set-cautious', 'set-poly', 'set-auto-buy-pot', 'set-auto-buy-arrow'].forEach(id => {
         let el = document.getElementById(id);
         if(el) el.checked = false;
     });
@@ -729,6 +729,8 @@ function saveGame() {
         setAutoBuyHaste: document.getElementById('set-auto-buy-haste').checked,
         setBrave: document.getElementById('set-brave').checked,
         setAutoBuyBrave: document.getElementById('set-auto-buy-brave').checked,
+        setChocolateCake: document.getElementById('set-chocolate-cake').checked,
+        setAutoBuyChocolateCake: document.getElementById('set-auto-buy-chocolate-cake').checked,
         setBlue: document.getElementById('set-blue').checked,
         setAutoBuyBlue: document.getElementById('set-auto-buy-blue').checked,
         setCautious: document.getElementById('set-cautious').checked,
@@ -976,6 +978,8 @@ function loadGame() {
             if (c.setAutoBuyHaste !== undefined) document.getElementById('set-auto-buy-haste').checked = c.setAutoBuyHaste;
             if (c.setBrave !== undefined) document.getElementById('set-brave').checked = c.setBrave;
             if (c.setAutoBuyBrave !== undefined) document.getElementById('set-auto-buy-brave').checked = c.setAutoBuyBrave;
+            if (c.setChocolateCake !== undefined) document.getElementById('set-chocolate-cake').checked = c.setChocolateCake;
+            if (c.setAutoBuyChocolateCake !== undefined) document.getElementById('set-auto-buy-chocolate-cake').checked = c.setAutoBuyChocolateCake;
             if (c.setBlue !== undefined) document.getElementById('set-blue').checked = c.setBlue;
             if (c.setAutoBuyBlue !== undefined) document.getElementById('set-auto-buy-blue').checked = c.setAutoBuyBlue;
             if (c.setCautious !== undefined) document.getElementById('set-cautious').checked = c.setCautious;
@@ -1000,7 +1004,7 @@ function loadGame() {
             }
         } else {
             // 舊版存檔相容：如果沒有 config 就預設全關
-            ['set-haste', 'set-brave', 'set-blue', 'set-cautious', 'set-poly', 'set-auto-buy-pot', 'set-auto-buy-arrow'].forEach(id => {
+            ['set-haste', 'set-brave', 'set-chocolate-cake', 'set-auto-buy-chocolate-cake', 'set-blue', 'set-cautious', 'set-poly', 'set-auto-buy-pot', 'set-auto-buy-arrow'].forEach(id => {
                 let el = document.getElementById(id);
                 if(el) el.checked = false;
             });

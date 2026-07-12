@@ -484,7 +484,7 @@ function onAutoBuffToggle(sid) {
     if (c && !c.checked) endAutoBuffNow(sid);
 }
 // 🔧 藥水/卷軸類維持型增益（靜態勾選框 set-*）：取消打勾即立即結束對應 buff（不等自然倒數）。於 window.onload 掛一次（勾選框是靜態 DOM、持久存在）。
-const POTION_BUFF_ENDERS = [['set-haste','haste'],['set-brave','brave'],['set-blue','blue'],['set-cautious','cautious'],['set-elfcookie','elfcookie'],['set-poly','poly'],['set-magicbarrier','sk_magic_shield']];
+const POTION_BUFF_ENDERS = [['set-haste','haste'],['set-brave','brave'],['set-chocolate-cake','chocolate_cake'],['set-blue','blue'],['set-cautious','cautious'],['set-elfcookie','elfcookie'],['set-poly','poly'],['set-magicbarrier','sk_magic_shield']];
 function wireBuffEnders() {
     POTION_BUFF_ENDERS.forEach(function(pair){
         let el = document.getElementById(pair[0]);

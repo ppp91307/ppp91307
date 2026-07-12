@@ -776,6 +776,7 @@ function autoActions() {
     const buffs = [
         { id: 'set-haste', pot: 'potion_haste', b: 'haste', buyId: 'set-auto-buy-haste' },
         { id: 'set-brave', pot: 'potion_brave', b: 'brave', req: 'knight,dragon,warrior,royal', buyId: 'set-auto-buy-brave' },
+        { id: 'set-chocolate-cake', pot: 'food_chocolate_cake', b: 'chocolate_cake', buyId: 'set-auto-buy-chocolate-cake' },
         { id: 'set-blue', pot: 'potion_blue', b: 'blue', buyId: 'set-auto-buy-blue' },
         { id: 'set-cautious', pot: 'new_item_140', b: 'cautious', req: 'mage,illusion', buyId: 'set-auto-buy-cautious' },
         { id: 'set-elfcookie', pot: 'new_item_139', b: 'elfcookie', req: 'elf', buyId: 'set-auto-buy-elfcookie' },
