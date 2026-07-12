@@ -111,6 +111,29 @@ function basePool(lv){
  const ids=Object.keys(DB.mobs).filter(id=>{const m=DB.mobs[id];return !id.startsWith('four_')&&m&&m.hp>0&&!m.boss&&!m.noAutoTeleport&&Math.abs((m.lv||1)-lv)<=12;});
  return ids.length?ids:Object.keys(DB.mobs).filter(id=>!id.startsWith('four_')&&DB.mobs[id]&&DB.mobs[id].hp>0&&!DB.mobs[id].boss&&!DB.mobs[id].noAutoTeleport).slice(0,12);
 }
+const towerThemes=[
+ {n:'不死墓園',re:/骷髏|殭屍|食屍|死亡|幽靈|怨靈|木乃伊/},
+ {n:'妖魔要塞',re:/妖魔|歐姆|食人妖精|歐吉|巨人/},
+ {n:'黑暗軍團',re:/黑暗|刺客|騎士|巡守|密使|暗殺/},
+ {n:'魔法禁區',re:/法師|術士|長老|思克巴|西瑪|卡士柏|馬庫爾|巴土瑟/},
+ {n:'元素迴廊',re:/火|炎|冰|水|風|地靈|精靈|熔岩/},
+ {n:'魔獸巢穴',re:/狼|虎|熊|犬|龍|蜥蜴|蜘蛛|螞蟻|牛人|格利芬/},
+ {n:'鋼鐵工房',re:/高崙|鋼鐵|機械|石頭|鎧|守衛|守護/},
+ {n:'異界裂隙',re:/惡魔|巴風特|巴列斯|吸血鬼|夢魘|混沌|深淵|幻象/}
+];
+function towerSourcePool(floor,ele){
+ const all=Object.keys(DB.mobs).filter(id=>{const m=DB.mobs[id];return !id.startsWith('four_')&&m&&m.hp>0&&!m.noAutoTeleport;});
+ const theme=towerThemes[Math.floor((Math.max(1,floor)-1)/3)%towerThemes.length];
+ let normal=all.filter(id=>!DB.mobs[id].boss),boss=all.filter(id=>DB.mobs[id].boss),themed=normal.filter(id=>theme.re.test(DB.mobs[id].n||''));
+ if(themed.length<8)themed=normal.filter(id=>DB.mobs[id].e===ele).concat(themed);
+ if(themed.length<8)themed=themed.concat(normal);
+ themed=[...new Set(themed)].sort();boss=boss.sort();
+ let seed=(floor*1103515245+12345)>>>0,pick=[];
+ function take(src,n){for(let i=0;i<n&&src.length;i++){seed=(seed*1664525+1013904223)>>>0;const idx=seed%src.length;pick.push(src[idx]);src=src.slice(0,idx).concat(src.slice(idx+1));}}
+ if(floor%5===0&&boss.length)take(boss,floor%10===0?2:1);
+ take(themed,Math.max(0,10-pick.length));
+ return {ids:pick,theme:theme.n};
+}
 const challengeAffixes={
  frenzy:{n:'狂暴',desc:'怪物攻速提升25%',apply:m=>{m.atkSpd=Math.max(.4,(m.atkSpd||2)*.75);}},
  fortress:{n:'鐵壁',desc:'怪物HP提升50%',apply:m=>{m.hp=Math.floor(m.hp*1.5);}},
@@ -120,26 +143,34 @@ const challengeAffixes={
 function randomAffix(){const keys=Object.keys(challengeAffixes),k=keys[Math.floor(Math.random()*keys.length)];return {key:k,...challengeAffixes[k]};}
 function towerDifficulty(floor){
  const f=Math.max(1,floor||1),late=Math.max(0,f-30),end=Math.max(0,f-70);
- return {hp:1+f*.25+f*f*.006,dmg:1+f*.04+late*.025+end*.04,hit:Math.floor(f/4),db:Math.floor(f/10),dr:Math.floor(f/6),ac:Math.floor(f/4),mr:Math.floor(f*1.5),haste:1+f*.008,guard:f%10===0};
+ return {hp:1+f*.35+f*f*.01,dmg:1+f*.06+late*.04+end*.06,hit:Math.floor(f/2),db:Math.floor(f/4),dr:Math.floor(f*3),ac:Math.floor(f/2),mr:Math.floor(f*2.5),haste:1+f*.01,elite:f%5===0,guard:f%10===0};
 }
 function makeChallenge(mode,key){
  const s=store();if(!s)return;
  const floor=s.tower.floor||1,diff=mode==='tower'?towerDifficulty(floor):null;
- const cfg=mode==='tower'?{lv:Math.min(100,10+floor*2),ele:['earth','wind','water','fire'][Math.floor((floor-1)/5)%4],need:10,scale:diff.hp,n:'無限之塔 第 '+floor+' 層'}:{...dungeon[key],scale:1+dungeon[key].lv/100};
- const src=basePool(cfg.lv),pool=[],affix=randomAffix();
- src.slice(0,8).forEach((id,i)=>{
+ const cfg=mode==='tower'?{lv:Math.min(160,10+floor*2),ele:['earth','wind','water','fire'][Math.floor((floor-1)/5)%4],need:10,scale:diff.hp,n:'無限之塔 第 '+floor+' 層'}:{...dungeon[key],scale:1+dungeon[key].lv/100};
+ const towerPick=mode==='tower'?towerSourcePool(floor,cfg.ele):null,src=towerPick?towerPick.ids:basePool(cfg.lv),pool=[],affix=randomAffix();
+ src.slice(0,10).forEach((id,i)=>{
   const b=DB.mobs[id],nid='four_'+mode+'_'+key+'_'+floor+'_'+i,m={...b,n:b.n,lv:cfg.lv,hp:Math.max(1,Math.floor(b.hp*cfg.scale)),exp:Math.max(1,Math.floor((b.exp||1)*cfg.scale)),e:cfg.ele,boss:false,_fourChallenge:mode,_fourKey:key,_fourAffix:affix.key};
   if(mode==='tower'){
    const raw=Array.isArray(b.dmg)?b.dmg:[Math.max(1,b.dmg||1),Math.max(2,b.dmg||2)];
-   m.dmg=raw.map(v=>Math.max(1,Math.floor(v*diff.dmg)));m.db=Math.floor((b.db||0)*diff.dmg)+diff.db;m.hit=(b.hit||0)+diff.hit;m.dr=(b.dr||0)+diff.dr;m.ac=(b.ac||0)-diff.ac;m.mr=(b.mr||0)+diff.mr;m.atkSpd=Math.max(.28,(b.atkSpd||2)/diff.haste);
-   if(diff.guard){m._fourTowerGuard=true;m.hp=Math.floor(m.hp*1.8);m.dmg=m.dmg.map(v=>Math.floor(v*1.25));m.db=Math.floor(m.db*1.25);m.dr+=Math.floor(floor/10);m.mr+=floor;}
+   const offense=Math.max(100,player.d&&player.d.meleeDmg||0,player.d&&player.d.rangedDmg||0,(player.d&&player.d.magicDmg||0)*5),minHp=Math.floor(1500+floor*180+floor*floor*1.8),hits=diff.guard?24:diff.elite?16:10;
+   m.hp=Math.max(Math.min(m.hp,minHp*(b.boss?4:2)),minHp,Math.floor(offense*hits));m.dmg=[Math.max(1,raw[0]||1),Math.max(1,Math.floor((raw[1]||1)*diff.dmg))];
+   const desiredHit=Math.min(16,7+Math.floor(floor/20)),neededHit=desiredHit-m.lv+(player.lv||1)-(player.d&&player.d.ac||0);
+   m.hit=Math.max((b.hit||0)+diff.hit,neededHit);
+   const acGap=Math.max(0,10-(player.d&&player.d.ac||0)),rndDr=Math.floor(acGap/2),targetRaw=Math.floor((player.mhp||100)*(.025+Math.min(.03,floor*.0002)));
+   m.db=Math.max(Math.floor((b.db||0)*diff.dmg)+diff.db,Math.floor(targetRaw/.75)+(player.d&&player.d.dr||0)+rndDr);
+   m.dr=(b.dr||0)+diff.dr;m.ac=(b.ac||0)-diff.ac;m.mr=(b.mr||0)+diff.mr;m.atkSpd=Math.max(.38,(b.atkSpd||2)/diff.haste);
+   if(m.mag&&m.mag.dmg){const md=Array.isArray(m.mag.dmg)?m.mag.dmg:[1,m.mag.dmg],magicTarget=Math.max(1,Math.floor((player.mhp||100)*.04));m.mag={...m.mag,dmg:[1,Math.max(Math.floor((md[0]||1)*(md[1]||1)*diff.dmg),magicTarget)]};}
+   if(diff.elite){m._fourTowerElite=true;m.n='菁英・'+m.n;m.hp=Math.floor(m.hp*1.35);m.dr+=Math.floor(floor*1.5);m.atkSpd=Math.max(.35,m.atkSpd*.88);}
+   if(diff.guard){m._fourTowerGuard=true;m.n='高塔守衛・'+b.n;m.hp=Math.floor(m.hp*1.5);m.dmg=[m.dmg[0],Math.floor(m.dmg[1]*1.4)];m.db=Math.floor(m.db*1.35);m.dr+=floor*2;m.mr+=floor*2;}
   }
   DB.mobs[nid]=m;affix.apply(m);pool.push(nid);
  });
  DB.maps.four_challenge=pool;
- window.fourRun={mode,key,keyName:cfg.n,kills:0,need:cfg.need,affix:affix.key};
+ window.fourRun={mode,key,keyName:cfg.n,kills:0,need:cfg.need,affix:affix.key,theme:towerPick&&towerPick.theme};
  const sel=document.getElementById('map-select');if(sel&&!Array.from(sel.options).some(o=>o.value==='four_challenge'))sel.add(new Option('特殊挑戰','four_challenge'));if(sel)sel.value='four_challenge';
- changeMap(true);fourClose();msg(`<span class="text-amber-300">進入 ${cfg.n}，挑戰詞綴【${affix.n}】：${affix.desc}。目標：擊敗 ${cfg.need} 隻敵人。${diff&&diff.guard?'本層為十層關卡，高塔守衛全面強化！':''}</span>`);saveGame();
+ changeMap(true);fourClose();msg(`<span class="text-amber-300">進入 ${cfg.n}${towerPick?'【'+towerPick.theme+'】':''}，挑戰詞綴【${affix.n}】：${affix.desc}。目標：擊敗 ${cfg.need} 隻敵人。${diff&&diff.guard?'本層為十層守關戰，高塔守衛獲得巨量生命、減傷與傷害！':diff&&diff.elite?'本層為菁英樓層，敵人全面強化！':''}</span>`);saveGame();
 }
 window.fourEnterTower=()=>makeChallenge('tower','tower');
 window.fourEnterDungeon=function(key){const s=store(),d=dungeon[key];if(!s||!d)return;const r=s.dungeon[key]||(s.dungeon[key]={used:0,clear:0});if(r.used>=d.daily){msg('今日進入次數已用完。');return;}r.used++;makeChallenge('dungeon',key);};
@@ -204,7 +235,7 @@ window.fourRender=function(){
  const missionSec=box.querySelector('[data-four="mission"]'),missionBtn=Array.from(tabs.children).find(b=>b.getAttribute('onclick')==="fourShow('mission')"),missionHeads=missionSec.querySelectorAll('h3'),dailyHead=missionHeads[1],dailySec=document.createElement('section');dailySec.dataset.four='daily';dailySec.hidden=true;let dailyNode=dailyHead;while(dailyNode){const next=dailyNode.nextSibling;dailySec.appendChild(dailyNode);dailyNode=next;}box.appendChild(dailySec);if(missionBtn){missionBtn.textContent='成就';const dailyBtn=document.createElement('button');dailyBtn.textContent='每日任務';dailyBtn.onclick=()=>fourShow('daily');missionBtn.parentNode.insertBefore(dailyBtn,missionBtn.nextSibling);}
  const addSystemTab=(label,key,html)=>{const b=document.createElement('button');b.textContent=label;b.onclick=()=>fourShow(key);tabs.appendChild(b);const sec=document.createElement('section');sec.dataset.four=key;sec.hidden=true;sec.innerHTML=html;box.appendChild(sec);};addSystemTab('每週任務','weekly',weeklyHtml);addSystemTab('高塔商店','towerShop',shopHtml);addSystemTab('四界共鳴','resonance',resonanceHtml);addSystemTab('王圖鑑','bestiary',bestiaryHtml);fourShow(active);
  addSystemTab('生存試煉','survival',survivalHtml);const towerSec=box.querySelector('[data-four="tower"]'),towerStart=towerSec&&towerSec.querySelector('button');if(towerSec){const affixBox=document.createElement('div');affixBox.className='four-tower-affix';affixBox.innerHTML=affixHtml;towerSec.insertBefore(affixBox,towerStart||null);}fourShow(active);
- const towerInfoFix=box.querySelector('[data-four="tower"] .four-card small');if(towerInfoFix){towerInfoFix.innerHTML=towerInfoFix.innerHTML.replace(/<br><span style="color:#fbbf24">附魔材料：<\/span>每通關一層額外取得地靈附魔結晶 ×1。$/,'');towerInfoFix.innerHTML+='<br><span style="color:#fde68a">高塔古幣：</span>每層 1 枚，每逢5層再增加1枚。<br><span style="color:#f87171">高階難度：</span>30層後攻擊成長加速；怪物同步提升HP、傷害、命中、AC、MR、減傷與攻速。每10層出現全面強化的高塔守衛。';}
+ const towerInfoFix=box.querySelector('[data-four="tower"] .four-card small');if(towerInfoFix){towerInfoFix.innerHTML=towerInfoFix.innerHTML.replace(/<br><span style="color:#fbbf24">附魔材料：<\/span>每通關一層額外取得地靈附魔結晶 ×1。$/,'');towerInfoFix.innerHTML+='<br><span style="color:#fde68a">高塔古幣：</span>每層 1 枚，每逢5層再增加1枚。<br><span style="color:#f87171">動態難度：</span>依入塔時角色輸出、HP、AC與減傷校準怪物生命、命中與傷害；高防角色不再讓敵人只剩5%命中。<br><span style="color:#c4b5fd">樓層變化：</span>每3層輪替八種怪物主題，每5層為菁英戰，每10層為高塔守關戰。';}
  box.querySelectorAll('.four-craft-info div:last-child').forEach(e=>e.innerHTML='<strong>共同生效</strong>本物品限製作1個，但四種專屬物品可同時放在背包，四套能力會一起生效。');
  const craftIntro=box.querySelector('[data-four="craft"] > p');if(craftIntro)craftIntro.textContent='四件專屬物品各限製作一次，均為不占欄位的背包被動。四件可以同時放在背包，炎魔、深海、風龍、地靈四套能力會一起生效。';
  };
