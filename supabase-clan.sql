@@ -2,6 +2,26 @@
 -- 請在 Supabase SQL Editor 一次執行整份檔案。
 create extension if not exists pgcrypto;
 
+-- 血盟與交易所共用的玩家公開資料；即使尚未安裝交易所也能獨立使用。
+create table if not exists public.market_profiles (
+ user_id uuid primary key references auth.users(id) on delete cascade,
+ display_name text not null default '冒險者',
+ wallet bigint not null default 0 check(wallet>=0),
+ updated_at timestamptz not null default now()
+);
+alter table public.market_profiles enable row level security;
+drop policy if exists market_profile_own on public.market_profiles;
+create policy market_profile_own on public.market_profiles for select using(auth.uid()=user_id);
+create or replace function public.market_ensure_profile(p_name text)
+returns public.market_profiles language plpgsql security definer set search_path=public as $$
+declare r public.market_profiles;
+begin
+ if auth.uid() is null then raise exception '尚未登入';end if;
+ insert into market_profiles(user_id,display_name) values(auth.uid(),left(coalesce(nullif(trim(p_name),''),'冒險者'),30))
+ on conflict(user_id) do update set display_name=excluded.display_name,updated_at=now();
+ select * into r from market_profiles where user_id=auth.uid();return r;
+end $$;
+
 create table if not exists public.clans (
  id uuid primary key default gen_random_uuid(),
  name text not null unique check(char_length(name) between 2 and 12),
@@ -147,5 +167,7 @@ begin
 end $$;
 
 revoke all on function public.clan_raise_level(uuid) from public;
+revoke all on function public.market_ensure_profile(text) from public;
 revoke all on function public.clan_create(text),public.clan_join_code(text),public.clan_apply(uuid),public.clan_invite(uuid),public.clan_review_application(uuid,boolean),public.clan_respond_invite(uuid,boolean),public.clan_donate(bigint),public.clan_search(text),public.clan_search_players(text),public.clan_my_state() from public;
 grant execute on function public.clan_create(text),public.clan_join_code(text),public.clan_apply(uuid),public.clan_invite(uuid),public.clan_review_application(uuid,boolean),public.clan_respond_invite(uuid,boolean),public.clan_donate(bigint),public.clan_search(text),public.clan_search_players(text),public.clan_my_state() to authenticated;
+grant execute on function public.market_ensure_profile(text) to authenticated;
