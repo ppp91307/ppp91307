@@ -159,7 +159,7 @@ function makeChallenge(mode,key){
    const desiredHit=Math.min(12,4+Math.floor(floor/20)),neededHit=desiredHit-m.lv+(player.lv||1)-(player.d&&player.d.ac||0);
    m.hit=neededHit;
    const acGap=Math.max(0,10-(player.d&&player.d.ac||0)),rndDr=Math.floor(acGap/2),targetPct=.012+Math.min(.018,floor*.00012),targetRaw=Math.max(8,Math.floor((player.mhp||100)*targetPct)),flatDr=(player.d&&player.d.dr||0)+rndDr;
-   m.dmg=[1,Math.max(4,Math.floor(targetRaw/3))];m.db=Math.max(1,Math.floor((targetRaw+flatDr)/.75));
+   m.dmg=[1,Math.max(4,Math.floor(targetRaw/3))];m.db=Math.max(1,Math.floor(targetRaw+flatDr));
    const minAtk=Math.max(.55,1.4-floor*.008);m.dr=(b.dr||0)+diff.dr;m.ac=(b.ac||0)-diff.ac;m.mr=(b.mr||0)+diff.mr;m.atkSpd=Math.max(minAtk,Math.min(2.2,(b.atkSpd||2)/diff.haste));
    if(m.mag&&m.mag.dmg){const magicTarget=Math.max(8,Math.floor(targetRaw*1.2));m.mag={...m.mag,dmg:[1,magicTarget]};}
    if(diff.elite){m._fourTowerElite=true;m.n='菁英・'+m.n;m.hp=Math.floor(m.hp*1.35);m.dr+=Math.floor(floor*1.5);m.atkSpd=Math.max(.35,m.atkSpd*.88);}
