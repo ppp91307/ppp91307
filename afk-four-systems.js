@@ -167,8 +167,9 @@ function makeChallenge(mode,key){
    m.dmg=[1,Math.max(4,Math.floor(targetRaw/3))];m.db=Math.max(1,Math.floor(targetRaw+fixedDr+acComp));
    const minAtk=Math.max(.55,1.4-floor*.008);m.dr=(b.dr||0)+diff.dr;m.ac=(b.ac||0)-diff.ac;m.mr=(b.mr||0)+diff.mr;m.atkSpd=Math.max(minAtk,Math.min(2.2,(b.atkSpd||2)/diff.haste));
    if(m.mag&&m.mag.dmg){const magicTarget=Math.max(8,Math.floor(targetRaw*1.2));m.mag={...m.mag,dmg:[1,magicTarget]};}
-   if(diff.elite){m._fourTowerElite=true;m.n='菁英・'+m.n;m.hp=Math.floor(m.hp*1.35);m.dr+=Math.floor(floor*1.5);m.atkSpd=Math.max(.35,m.atkSpd*.88);}
-   if(diff.guard){m._fourTowerGuard=true;m.n='高塔守衛・'+b.n;m.hp=Math.floor(m.hp*1.5);m.dmg=[m.dmg[0],Math.floor(m.dmg[1]*1.4)];m.db=Math.floor(m.db*1.35);m.dr+=floor*2;m.mr+=floor*2;}
+   // 怪物動畫以原始名稱尋找圖檔；菁英／守衛僅保存階級旗標，不改名稱，避免圖片路徑變成不存在的「菁英・怪名」。
+   if(diff.elite){m._fourTowerElite=true;m._fourTowerRank='菁英';m.hp=Math.floor(m.hp*1.35);m.dr+=Math.floor(floor*1.5);m.atkSpd=Math.max(.35,m.atkSpd*.88);}
+   if(diff.guard){m._fourTowerGuard=true;m._fourTowerRank='高塔守衛';m.hp=Math.floor(m.hp*1.5);m.dmg=[m.dmg[0],Math.floor(m.dmg[1]*1.4)];m.db=Math.floor(m.db*1.35);m.dr+=floor*2;m.mr+=floor*2;}
   }
   DB.mobs[nid]=m;affix.apply(m);pool.push(nid);
  });
