@@ -290,8 +290,8 @@ function tick() {
     if((player.cds.castLock || 0) > 0) player.cds.castLock--;   // 🔮 天堂職業施法冷卻下限（法師快·王族/黑妖慢）·autoCastSpells 依此節流攻擊魔法
     if(canAct) autoCastSpells();   // 每 tick 嘗試自動施法，實際間隔由上方冷卻控制
 
+    if(player.cds.pot > 0) player.cds.pot = Math.max(0, player.cds.pot - 0.1);   // 每 tick 遞減，支援古代藥水 0.53 秒延遲
     if(state.ticks % 10 === 0) {
-        if(player.cds.pot > 0) player.cds.pot--;   // 藥水冷卻維持每秒遞減
         if(player.reviveScrollCd > 0) player.reviveScrollCd--;   // 復活卷軸冷卻：僅存活時倒數（此區塊死亡時不執行）
         if(player.magicShieldCd > 0) player.magicShieldCd--;     // 魔法屏障抵擋後冷卻：僅存活時倒數
         // 🔧 架構統一：所有 buff（以秒計）的「唯一」遞減點，每秒扣 1。
