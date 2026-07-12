@@ -80,7 +80,7 @@ begin
  if auth.uid() is null then raise exception '尚未登入'; end if;
  if exists(select 1 from clan_members where user_id=auth.uid()) then raise exception '你已經有血盟'; end if;
  if char_length(trim(p_name)) not between 2 and 12 then raise exception '名稱長度需為 2～12 字'; end if;
- loop code:=upper(substr(encode(gen_random_bytes(6),'hex'),1,8));exit when not exists(select 1 from clans where invite_code=code);end loop;
+ loop code:=upper(substr(replace(gen_random_uuid()::text,'-',''),1,8));exit when not exists(select 1 from clans where invite_code=code);end loop;
  insert into clans(name,invite_code,owner_id) values(trim(p_name),code,auth.uid()) returning id into cid;
  insert into clan_members(user_id,clan_id,role) values(auth.uid(),cid,'owner');return cid;
 exception when unique_violation then raise exception '血盟名稱已被使用';
