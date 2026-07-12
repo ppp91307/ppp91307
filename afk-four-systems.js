@@ -107,9 +107,14 @@ window.fourApplyTalentStats=function(p,d){
  if(['four_flame_belt','four_deep_amulet','four_wind_ring','four_earth_charm'].every(hasPassive)){p.mhp+=200;d.meleeDmg+=5;d.rangedDmg+=5;d.magicDmg+=5;d.resFire+=10;d.resWater+=10;d.resEarth+=10;d.resWind+=10;}
  Object.values(p.eq||{}).forEach(e=>{if(!e)return;(e.fourRoll||[]).forEach(x=>fourApplyRoll(p,d,x));if(e.fourEleLv){d.meleeDmg+=e.fourEleLv;d.rangedDmg+=e.fourEleLv;d.magicDmg+=e.fourEleLv;}});
 };
+function fourHasMobSprite(m){
+ if(!m||!m.n)return false;
+ if(typeof MOB_ANIM_NAMES!=='undefined'&&MOB_ANIM_NAMES&&MOB_ANIM_NAMES.size)return MOB_ANIM_NAMES.has(m.n);
+ return !!m.img;
+}
 function basePool(lv){
- const ids=Object.keys(DB.mobs).filter(id=>{const m=DB.mobs[id];return !id.startsWith('four_')&&m&&m.hp>0&&!m.boss&&!m.noAutoTeleport&&Math.abs((m.lv||1)-lv)<=12;});
- return ids.length?ids:Object.keys(DB.mobs).filter(id=>!id.startsWith('four_')&&DB.mobs[id]&&DB.mobs[id].hp>0&&!DB.mobs[id].boss&&!DB.mobs[id].noAutoTeleport).slice(0,12);
+ const ids=Object.keys(DB.mobs).filter(id=>{const m=DB.mobs[id];return !id.startsWith('four_')&&m&&m.hp>0&&!m.boss&&!m.noAutoTeleport&&fourHasMobSprite(m)&&Math.abs((m.lv||1)-lv)<=12;});
+ return ids.length?ids:Object.keys(DB.mobs).filter(id=>!id.startsWith('four_')&&DB.mobs[id]&&DB.mobs[id].hp>0&&!DB.mobs[id].boss&&!DB.mobs[id].noAutoTeleport&&fourHasMobSprite(DB.mobs[id])).slice(0,12);
 }
 const towerThemes=[
  {n:'不死墓園',re:/骷髏|殭屍|食屍|死亡|幽靈|怨靈|木乃伊/},
@@ -122,7 +127,7 @@ const towerThemes=[
  {n:'異界裂隙',re:/惡魔|巴風特|巴列斯|吸血鬼|夢魘|混沌|深淵|幻象/}
 ];
 function towerSourcePool(floor,ele){
- const all=Object.keys(DB.mobs).filter(id=>{const m=DB.mobs[id];return !id.startsWith('four_')&&m&&m.hp>0&&!m.noAutoTeleport;});
+ const all=Object.keys(DB.mobs).filter(id=>{const m=DB.mobs[id];return !id.startsWith('four_')&&m&&m.hp>0&&!m.noAutoTeleport&&fourHasMobSprite(m);});
  const theme=towerThemes[Math.floor((Math.max(1,floor)-1)/3)%towerThemes.length];
  let normal=all.filter(id=>!DB.mobs[id].boss),boss=all.filter(id=>DB.mobs[id].boss),themed=normal.filter(id=>theme.re.test(DB.mobs[id].n||''));
  if(themed.length<8)themed=normal.filter(id=>DB.mobs[id].e===ele).concat(themed);

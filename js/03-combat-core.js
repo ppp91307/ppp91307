@@ -684,6 +684,11 @@ function spawnMob(idx) {
         mapState.mobs[idx] = null;
         return;
     }
+    // 無限之塔同時最多只生成兩隻怪物；擊殺後仍會依序補怪直到達成通關數量。
+    if (mapState.current === 'four_challenge' && window.fourRun && fourRun.mode === 'tower' && idx >= 2) {
+        mapState.mobs[idx] = null;
+        return;
+    }
     if (mapState.current === 'rift_battle') { spawnRiftMob(idx); return; }   // 🌀 時空裂痕：自訂動態出怪（不靠 DB.maps）
     let pool = DB.maps[mapState.current];
     if(!pool) return;
