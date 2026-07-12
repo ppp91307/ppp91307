@@ -163,13 +163,13 @@ function makeChallenge(mode,key){
    m.hp=Math.max(Math.min(m.hp,minHp*(b.boss?4:2)),minHp,Math.floor(offense*hits));
    const desiredHit=Math.min(12,4+Math.floor(floor/20)),neededHit=desiredHit-m.lv+(player.lv||1)-(player.d&&player.d.ac||0);
    m.hit=neededHit;
-   const acGap=Math.max(0,10-(player.d&&player.d.ac||0)),targetPct=.008+Math.min(.022,floor*.00015),targetRaw=Math.max(6,Math.floor((player.mhp||100)*targetPct)),fixedDr=Math.min(Math.floor(targetRaw*.50),Math.max(0,(player.d&&player.d.dr)||0)),acComp=Math.min(Math.floor(targetRaw*.35),Math.floor(acGap/10));
+   const acGap=Math.max(0,10-(player.d&&player.d.ac||0)),targetPct=Math.min(.03,.0045+Math.min(.003,floor*.0001)+Math.max(0,floor-30)*.00032),targetRaw=Math.max(6,Math.floor((player.mhp||100)*targetPct)),fixedDr=Math.min(Math.floor(targetRaw*.50),Math.max(0,(player.d&&player.d.dr)||0)),acComp=Math.min(Math.floor(targetRaw*.35),Math.floor(acGap/10));
    m.dmg=[1,Math.max(4,Math.floor(targetRaw/3))];m.db=Math.max(1,Math.floor(targetRaw+fixedDr+acComp));
    const minAtk=Math.max(.55,1.4-floor*.008);m.dr=(b.dr||0)+diff.dr;m.ac=(b.ac||0)-diff.ac;m.mr=(b.mr||0)+diff.mr;m.atkSpd=Math.max(minAtk,Math.min(2.2,(b.atkSpd||2)/diff.haste));
    if(m.mag&&m.mag.dmg){const magicTarget=Math.max(8,Math.floor(targetRaw*1.2));m.mag={...m.mag,dmg:[1,magicTarget]};}
    // 怪物動畫以原始名稱尋找圖檔；菁英／守衛僅保存階級旗標，不改名稱，避免圖片路徑變成不存在的「菁英・怪名」。
    if(diff.elite){m._fourTowerElite=true;m._fourTowerRank='菁英';m.hp=Math.floor(m.hp*1.35);m.dr+=Math.floor(floor*1.5);m.atkSpd=Math.max(.35,m.atkSpd*.88);}
-   if(diff.guard){m._fourTowerGuard=true;m._fourTowerRank='高塔守衛';m.hp=Math.floor(m.hp*1.5);m.dmg=[m.dmg[0],Math.floor(m.dmg[1]*1.4)];m.db=Math.floor(m.db*1.35);m.dr+=floor*2;m.mr+=floor*2;}
+   if(diff.guard){const guardBoost=1.05+Math.min(.30,floor*.003);m._fourTowerGuard=true;m._fourTowerRank='高塔守衛';m.hp=Math.floor(m.hp*1.5);m.dmg=[m.dmg[0],Math.floor(m.dmg[1]*guardBoost)];m.db=Math.floor(m.db*guardBoost);m.dr+=floor*2;m.mr+=floor*2;}
   }
   DB.mobs[nid]=m;affix.apply(m);pool.push(nid);
  });
