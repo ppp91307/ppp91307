@@ -123,7 +123,7 @@ window.fourApplyTalentStats=function(p,d){
  const awake=(s.rebirth&&s.rebirth.count)||0;if(awake){p.mhp+=awake*150;p.mmp+=awake*30;d.meleeDmg+=awake*2;d.rangedDmg+=awake*2;d.magicDmg+=awake*2;d.meleeHit+=awake;d.rangedHit+=awake;d.magicHit+=awake;}
  (s.runes.equipped||[]).forEach(id=>{const lv=(s.runes.owned&&s.runes.owned[id])||0;if(!lv)return;if(id==='power'){d.meleeDmg+=lv*2;d.rangedDmg+=lv*2;}if(id==='guard'){p.mhp+=lv*100;d.dr+=Math.floor((lv+1)/2);}if(id==='wisdom'){d.magicDmg+=lv*2;d.mpR+=lv;}if(id==='fortune'){d.meleeHit+=lv;d.rangedHit+=lv;d.magicHit+=lv;}});
  const petName=s.petGrowth.selected,pet=petName&&s.petGrowth.pets[petName];if(pet){const lv=pet.lv||1;p.mhp+=lv*20;d.meleeDmg+=Math.floor(lv/3);d.rangedDmg+=Math.floor(lv/3);d.magicDmg+=Math.floor(lv/4);d.dr+=Math.floor(lv/10);}
- if(s.clan&&s.clan.name){const lv=Math.max(1,s.clan.level||1);p.mhp+=lv*50;p.mmp+=lv*10;d.meleeDmg+=Math.floor(lv/2);d.rangedDmg+=Math.floor(lv/2);d.magicDmg+=Math.floor(lv/2);d.meleeHit+=Math.floor(lv/3);d.rangedHit+=Math.floor(lv/3);d.magicHit+=Math.floor(lv/3);d.dr+=Math.floor(lv/5);}
+ if(s.clan&&s.clan.name){const lv=Math.max(1,s.clan.level||1),tech=s.clan.tech||{};p.mhp+=lv*50+(tech.hp||0)*100;p.mmp+=lv*10;d.meleeDmg+=Math.floor(lv/2)+(tech.damage||0);d.rangedDmg+=Math.floor(lv/2)+(tech.damage||0);d.magicDmg+=Math.floor(lv/2)+(tech.damage||0);d.meleeHit+=Math.floor(lv/3);d.rangedHit+=Math.floor(lv/3);d.magicHit+=Math.floor(lv/3);d.dr+=Math.floor(lv/5);}
 };
 function fourHasMobSprite(m){
  if(!m||!m.n)return false;
