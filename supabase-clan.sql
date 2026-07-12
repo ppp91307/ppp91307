@@ -171,3 +171,6 @@ revoke all on function public.market_ensure_profile(text) from public;
 revoke all on function public.clan_create(text),public.clan_join_code(text),public.clan_apply(uuid),public.clan_invite(uuid),public.clan_review_application(uuid,boolean),public.clan_respond_invite(uuid,boolean),public.clan_donate(bigint),public.clan_search(text),public.clan_search_players(text),public.clan_my_state() from public;
 grant execute on function public.clan_create(text),public.clan_join_code(text),public.clan_apply(uuid),public.clan_invite(uuid),public.clan_review_application(uuid,boolean),public.clan_respond_invite(uuid,boolean),public.clan_donate(bigint),public.clan_search(text),public.clan_search_players(text),public.clan_my_state() to authenticated;
 grant execute on function public.market_ensure_profile(text) to authenticated;
+
+-- 通知 Supabase Data API 立即重新讀取新資料表與 RPC 函式。
+notify pgrst, 'reload schema';
