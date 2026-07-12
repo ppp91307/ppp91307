@@ -155,13 +155,13 @@ function makeChallenge(mode,key){
   if(mode==='tower'){
    const raw=Array.isArray(b.dmg)?b.dmg:[Math.max(1,b.dmg||1),Math.max(2,b.dmg||2)];
    const offense=Math.max(100,player.d&&player.d.meleeDmg||0,player.d&&player.d.rangedDmg||0,(player.d&&player.d.magicDmg||0)*5),minHp=Math.floor(1500+floor*180+floor*floor*1.8),hits=diff.guard?24:diff.elite?16:10;
-   m.hp=Math.max(Math.min(m.hp,minHp*(b.boss?4:2)),minHp,Math.floor(offense*hits));m.dmg=[Math.max(1,raw[0]||1),Math.max(1,Math.floor((raw[1]||1)*diff.dmg))];
-   const desiredHit=Math.min(16,7+Math.floor(floor/20)),neededHit=desiredHit-m.lv+(player.lv||1)-(player.d&&player.d.ac||0);
-   m.hit=Math.max((b.hit||0)+diff.hit,neededHit);
-   const acGap=Math.max(0,10-(player.d&&player.d.ac||0)),rndDr=Math.floor(acGap/2),targetRaw=Math.floor((player.mhp||100)*(.025+Math.min(.03,floor*.0002)));
-   m.db=Math.max(Math.floor((b.db||0)*diff.dmg)+diff.db,Math.floor(targetRaw/.75)+(player.d&&player.d.dr||0)+rndDr);
-   m.dr=(b.dr||0)+diff.dr;m.ac=(b.ac||0)-diff.ac;m.mr=(b.mr||0)+diff.mr;m.atkSpd=Math.max(.38,(b.atkSpd||2)/diff.haste);
-   if(m.mag&&m.mag.dmg){const md=Array.isArray(m.mag.dmg)?m.mag.dmg:[1,m.mag.dmg],magicTarget=Math.max(1,Math.floor((player.mhp||100)*.04));m.mag={...m.mag,dmg:[1,Math.max(Math.floor((md[0]||1)*(md[1]||1)*diff.dmg),magicTarget)]};}
+   m.hp=Math.max(Math.min(m.hp,minHp*(b.boss?4:2)),minHp,Math.floor(offense*hits));
+   const desiredHit=Math.min(12,4+Math.floor(floor/20)),neededHit=desiredHit-m.lv+(player.lv||1)-(player.d&&player.d.ac||0);
+   m.hit=neededHit;
+   const acGap=Math.max(0,10-(player.d&&player.d.ac||0)),rndDr=Math.floor(acGap/2),targetPct=.012+Math.min(.018,floor*.00012),targetRaw=Math.max(8,Math.floor((player.mhp||100)*targetPct)),flatDr=(player.d&&player.d.dr||0)+rndDr;
+   m.dmg=[1,Math.max(4,Math.floor(targetRaw/3))];m.db=Math.max(1,Math.floor((targetRaw+flatDr)/.75));
+   const minAtk=Math.max(.55,1.4-floor*.008);m.dr=(b.dr||0)+diff.dr;m.ac=(b.ac||0)-diff.ac;m.mr=(b.mr||0)+diff.mr;m.atkSpd=Math.max(minAtk,Math.min(2.2,(b.atkSpd||2)/diff.haste));
+   if(m.mag&&m.mag.dmg){const magicTarget=Math.max(8,Math.floor(targetRaw*1.2));m.mag={...m.mag,dmg:[1,magicTarget]};}
    if(diff.elite){m._fourTowerElite=true;m.n='菁英・'+m.n;m.hp=Math.floor(m.hp*1.35);m.dr+=Math.floor(floor*1.5);m.atkSpd=Math.max(.35,m.atkSpd*.88);}
    if(diff.guard){m._fourTowerGuard=true;m.n='高塔守衛・'+b.n;m.hp=Math.floor(m.hp*1.5);m.dmg=[m.dmg[0],Math.floor(m.dmg[1]*1.4)];m.db=Math.floor(m.db*1.35);m.dr+=floor*2;m.mr+=floor*2;}
   }
