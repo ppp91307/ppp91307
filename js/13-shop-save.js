@@ -348,7 +348,7 @@ async function exportSave(){
         try {
             let handle = await window.showSaveFilePicker({
                 suggestedName: fname,
-                types: [{ description: '放置天堂存檔', accept: { 'application/json': ['.json'] } }]
+                types: [{ description: '亞丁血盟：放置傳說存檔', accept: { 'application/json': ['.json'] } }]
             });
             let w = await handle.createWritable();
             await w.write(data);
@@ -407,7 +407,7 @@ function importSave(n){
             try { d = JSON.parse(text); }
             catch(e){ alert('匯入失敗：檔案不是有效的存檔（JSON 解析錯誤）。'); return; }
             if(!d || typeof d !== 'object' || !d.p || typeof d.p !== 'object' || !d.p.cls){
-                alert('匯入失敗：檔案內容不是有效的放置天堂存檔。'); return;
+                alert('匯入失敗：檔案內容不是有效的亞丁血盟：放置傳說存檔。'); return;
             }
             let existing = slotSummary(n);
             if(existing && !confirm(`存檔 ${n} 已有角色（${existing.cls} Lv.${existing.lv} ${existing.name}）。\n確定要用匯入的存檔「取代」它嗎？\n（原存檔會自動備份，可於載入畫面點「復原備份」還原）`)) return;
