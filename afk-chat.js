@@ -7,6 +7,15 @@ const el=id=>document.getElementById(id);
 const cleanTag=s=>String(s||'').trim().replace(/^@/,'');
 function setStatus(t,color='#94a3b8'){const x=el('chat-status');if(x){x.textContent=t;x.style.color=color;}}
 function validTag(tag){return /^[\p{L}\p{N}_]{2,16}$/u.test(tag);}
+function privateSeenKey(){return 'lineage_chat_private_seen_'+(user?.id||'guest');}
+function loadPrivateSeen(){try{return new Set(JSON.parse(localStorage.getItem(privateSeenKey())||'[]').map(Number));}catch(e){return new Set();}}
+function savePrivateSeen(seen){try{localStorage.setItem(privateSeenKey(),JSON.stringify(Array.from(seen).slice(-500)));}catch(e){}}
+function showPrivateUnread(on){el('chat-private-unread')?.classList.toggle('hidden',!on);}
+function markPrivateRowsSeen(rows){const seen=loadPrivateSeen();for(const m of rows||[])if(!m.mine)seen.add(Number(m.id));savePrivateSeen(seen);}
+async function checkPrivateUnread(){
+  if(!client||!user)return;
+  try{const r=await client.rpc('chat_private_read',{p_target_tag:''});if(r.error)return;const seen=loadPrivateSeen();showPrivateUnread((r.data||[]).some(m=>!m.mine&&!seen.has(Number(m.id))));}catch(e){}
+}
 async function init(){
   if(ready)return true;
   if(!window.MARKET_CONFIG||!window.supabase?.createClient)return false;
@@ -35,7 +44,10 @@ async function read(){
       ? await client.rpc('chat_private_read',{p_target_tag:privateTarget})
       : await client.rpc('chat_read',{p_channel:channel});
     if(r.error)throw r.error;
-    const rows=channel==='private'?(r.data||[]).slice().reverse():(r.data||[]),sig=channel+'|'+privateTarget+'|'+rows.map(x=>x.id).join(',');if(sig===lastSig)return;lastSig=sig;
+    const rows=channel==='private'?(r.data||[]).slice().reverse():(r.data||[]);
+    if(channel==='private')markPrivateRowsSeen(rows);
+    await checkPrivateUnread();
+    const sig=channel+'|'+privateTarget+'|'+rows.map(x=>x.id).join(',');if(sig===lastSig)return;lastSig=sig;
     const box=el('chat-messages'),wasBottom=box.scrollHeight-box.scrollTop-box.clientHeight<40;
     box.innerHTML=rows.map(m=>{
       const time=`<span style="color:#64748b">${new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>`;
