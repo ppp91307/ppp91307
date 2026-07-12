@@ -537,11 +537,22 @@ function _vfxFlush() {
     }
     _vfxPending = [];
 }
+let _vfxNumberBurst = [];
+function _vfxNumberOffset(x, y) {
+    let now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+    _vfxNumberBurst = _vfxNumberBurst.filter(p => now - p.t < 260);
+    let slot = _vfxNumberBurst.filter(p => Math.abs(p.x - x) < 54 && Math.abs(p.y - y) < 42).length;
+    _vfxNumberBurst.push({ x, y, t: now });
+    let dx = [0, -24, 24, -42, 42, -12, 12][slot % 7] || 0;
+    let dy = [0, 7, 7, 14, 14, 21, 21][slot % 7] || 0;
+    return { x: x + dx, y: y - dy - Math.floor(slot / 7) * 18 };
+}
 function _vfxNumber(x, y, dmg, ele, big) {
     if (_vfxNumOff()) return;   // 🔢 v3.0.2 「只關傷害數字」獨立開關：關掉所有飄動傷害數字(致命/非致命皆走此唯一渲染點)·其餘特效不受影響
+    let pos = _vfxNumberOffset(x, y);
     let el = document.createElement('div');
     el.className = 'vfx-dmg' + (big ? ' vfx-crit' : '');
-    el.style.left = x + 'px'; el.style.top = y + 'px';
+    el.style.left = pos.x + 'px'; el.style.top = pos.y + 'px';
     el.style.color = big === 'crit' ? '#ff3b30' : (big === 'heavy' ? '#ffd54f' : (_VFX_ELE_COLOR[ele] || '#f1f5f9'));   // 爆擊大紅／重擊大金／其餘依屬性
     el.style.fontSize = (big ? 30 : 18) + 'px';
     el.textContent = dmg >= 10000 ? (dmg / 1000).toFixed(1) + 'k' : ('' + dmg);
@@ -1014,6 +1025,8 @@ function _renderMobsImpl() {
         let m = mapState.mobs[i];
         let _rowCls = (i >= 3) ? ' mob-back' : (_back ? ' mob-front' : '');   // 後排/前排版位 class（三格模式不加→沿用原版面）
         if (m) {
+            let _deadFade = !!(m._dead && m._deadAt && (Date.now() - m._deadAt < 420));
+            let _deadCls = _deadFade ? ' mob-fading-dead pointer-events-none' : '';
             let act = (i === mapState.targetIdx) ? 'active' : '';
             let _mi = mobStillImg(m.n, m.img, !window.__animOff);   // 🎬 戰鬥初始幀：有動畫→優先 spawn_0（無 spawn 退 idle_0·再退舊靜態）；無動畫→舊靜態。🔋 省電關動畫時不試 spawn_0（沒有登場動畫可播·許多怪無此幀→每次重繪 404 空窗＝怪圖閃消失）
             let hitClass = '';   // 🚫 v2.7.49 移除 CSS 受擊晃動/亮起特效（只保留 hurt 序列幀 anim；justHit 仍驅動 hurt 觸發與傷害數字）
@@ -1059,7 +1072,7 @@ function _renderMobsImpl() {
             // ⚔️ v2.7.40 第二武器層(_w2·如伊弗利特雙武器/雙火焰)：與 _w 同機制·再疊一層 .mob-anim-weapon2
             let _weaponFx2 = MOB_ANIM_NAMES.has(m.n) && (typeof MOB_ANIM_WEAPON_FX2 !== 'undefined') && MOB_ANIM_WEAPON_FX2.has(m.n);
             let _weaponLayer2 = _weaponFx2 ? `<img class="mob-anim-weapon2 w-24 h-24 p-1 object-contain pointer-events-none" src="assets/anim/${_animDir(m.n)}/idle_w2_0.png" alt="" aria-hidden="true" onerror="this.style.display='none'">` : '';
-            _slotHtmls[_k] = `<div class="mob-target ${act}${_rowCls}${BOSS_BIG_MAPS.includes(mapState.current) ? ' boss-slot' : (m.boss ? ' boss-zoom' : '')}" data-uid="${m.uid}"${_scat}>
+            _slotHtmls[_k] = `<div class="mob-target ${act}${_rowCls}${_deadCls}${BOSS_BIG_MAPS.includes(mapState.current) ? ' boss-slot' : (m.boss ? ' boss-zoom' : '')}" data-uid="${m.uid}"${_scat}>
                         <div class="flex justify-center items-center text-sm mb-1 mob-name">
                             <span class="${getMobNameClass(m)}">${m.n}</span>${(_showMobEleFlag && m.e && m.e !== 'none') ? ` <span class="text-[11px] font-bold" style="margin-left:3px;color:${(typeof RELIC_ELE_COLOR !== 'undefined' && RELIC_ELE_COLOR[m.e]) || '#cbd5e1'};" title="敵人屬性（巨大螞蟻的複眼）">[${(typeof RELIC_ELE_LABEL !== 'undefined' && RELIC_ELE_LABEL[m.e]) || ''}]</span>` : ''}
                         </div>

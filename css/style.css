@@ -25,6 +25,9 @@
         .log-bg { border: 3px solid transparent; border-bottom-width: 1px; background: linear-gradient(180deg, #23282e 0%, #3e4651 50%, #1d2025 100%) padding-box, linear-gradient(135deg, #4a3613 0%, #b89243 20%, #6e5220 42%, #e6c474 60%, #5c4318 80%, #c9a14a 100%) border-box; }  /* 日誌訊息區：較深灰底 + 黃褐不規則漸層邊框 */
         .panel { background: #1e293b padding-box, linear-gradient(135deg, #4a3613 0%, #b89243 20%, #6e5220 42%, #e6c474 60%, #5c4318 80%, #c9a14a 100%) border-box; border: 2px solid transparent; border-bottom-width: 1px; border-radius: 0.75rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; }
         .panel-header { background: linear-gradient(135deg, #7e6630 0%, #a07f3c 18%, #6e5828 40%, #927535 58%, #5f4d22 78%, #876d31 100%); border-bottom: 1px solid #334155; padding: 0.75rem 1.25rem; font-size: 1.125rem; font-weight: bold; color: #e2e8f0; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; }
+        #chat-panel.chat-collapsed { height: 48px !important; min-height: 48px !important; }
+        #chat-panel.chat-collapsed > div:not(.panel-header) { display: none !important; }
+        #chat-panel.chat-collapsed .panel-header { border-radius: 0.75rem; }
         #status-panel > .panel-header { background: transparent; color: #fbbf24; text-shadow: none; }  /* 人物左上資訊框標題：還原原本顏色 */
         /* 🤝 隊伍／技能設定清單：視窗過小或傭兵較多導致下方隊員設定被擋住時，清單內部出現捲軸（面板標題與 隊伍/技能設定 分頁鈕保持固定）。
            狀態框不壓縮（數值/血條保持完整）；隊伍面板可縮小讓內部清單捲動→整塊面板不會被擠出視窗外。max-height 46vh 為上限（傭兵多時大螢幕也不會霸佔整欄，保留自動化設定可見）。 */
@@ -54,6 +57,15 @@
         .mob-target { padding: 0.75rem; border: 2px solid #334155; border-radius: 0.5rem; background: #0f172a; cursor: default; flex: 1; text-align: center; display: flex; flex-direction: column; justify-content: center; transition: background-color 0.2s, border-color 0.2s; height: 224px; overflow: hidden;}   /* 🔧 v2.5.9：怪物卡不再是可點擊按鈕→游標 default·保留 .active 紅框/hover。⚠️v2.6.51 transition 由 all→只 background-color/border-color：怪卡是 aspect-ratio 條狀帶內的 flex 項，transition:all 會把「分數 DPR/縮放下的次像素版面回饋」動畫化→5 怪地圖(前後排 flex 1.2/0.8 不均·更易觸發)畫面一直左右放大縮小；只留顏色過場即消除版面動畫回饋、hover/鎖定紅框視覺不變 */
         .mob-target.active { border-color: #ef4444; background: #450a0a; }
         .mob-target[data-uid] { cursor: pointer; }   /* 🖱️ v2.6.46 填有怪物的卡片可點擊指定攻擊目標→游標改 pointer(空格無 data-uid 不套)；圖片 pointer-events:none 使點擊落在卡片→委派 click 讀 data-uid setTarget */
+        .mob-target.mob-fading-dead { pointer-events: none !important; }
+        .mob-target.mob-fading-dead .mob-img-inner { animation: mobDeathFade .42s ease-out forwards; }
+        .mob-target.mob-fading-dead .mob-name,
+        .mob-target.mob-fading-dead > div:not(.mob-img-wrap),
+        .mob-target.mob-fading-dead .w-full { opacity: .35; transition: opacity .18s ease-out; }
+        @keyframes mobDeathFade {
+            0% { opacity: 1; filter: brightness(1.45) saturate(1.25); transform: translateY(0) scale(1); }
+            100% { opacity: 0; filter: brightness(.35) saturate(.45); transform: translateY(-10px) scale(.94); }
+        }
         /* 🪆 魔法娃娃游標：裝備娃娃時(body.has-doll-cursor 由 applyDollCursor 切換)，連可點擊處(.btn/.list-item/.mob-target/.cf-pill/Tailwind cursor-pointer 等)也維持娃娃游標、不變回手指箭頭。* 繼承 body 的內聯娃娃游標；專案無任何 cursor !important 故此 !important 必勝。 */
         body.has-doll-cursor * { cursor: inherit !important; }
         /* 例外：文字輸入框保留打字游標(text)、停用元素保留禁用提示(not-allowed)——皆非「手指箭頭」、保留其辨識度 */

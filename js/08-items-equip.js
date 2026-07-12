@@ -1,3 +1,24 @@
+let _gainLogLast = { key: '', count: 0, el: null, base: '', at: 0 };
+function logGainItemCompact(itemInfo) {
+    let d = DB.items[itemInfo.id];
+    if (!d) return;
+    let key = (typeof itemSig === 'function') ? itemSig(itemInfo) : JSON.stringify({ id: itemInfo.id, en: itemInfo.en, bless: itemInfo.bless, anc: itemInfo.anc, attr: itemInfo.attr, seteff: itemInfo.seteff });
+    let cnt = Math.max(1, Number(itemInfo.cnt) || 1);
+    let name = getItemFullName(itemInfo);
+    let base = `獲得物品: <span class="font-bold">${name}</span>`;
+    let sys = document.getElementById('sys-log');
+    let now = Date.now();
+    if (sys && _gainLogLast.key === key && _gainLogLast.el && _gainLogLast.el.parentNode === sys && sys.lastElementChild === _gainLogLast.el && now - _gainLogLast.at < 12000) {
+        _gainLogLast.count += cnt;
+        _gainLogLast.el.innerHTML = `${_gainLogLast.base} <span class="text-amber-300 font-bold">×${_gainLogLast.count}</span>`;
+        _gainLogLast.at = now;
+        try { if (typeof _sysLogLocked === 'undefined' || !_sysLogLocked) _logScrollBottom(sys); } catch(e) {}
+        return;
+    }
+    logSys(cnt > 1 ? `${base} <span class="text-amber-300 font-bold">×${cnt}</span>` : base);
+    _gainLogLast = { key, count: cnt, el: sys ? sys.lastElementChild : null, base, at: now };
+}
+
 function gainItem(id, cnt=1, silent=false, forceNormal=false, affixOld=false) {
     if (window.__afkGainTally && id) __afkGainTally[id] = (__afkGainTally[id] || 0) + (cnt == null ? 1 : cnt);   // 🌙 離線結算期間計獲得量，供快速結算把庫存淨變化還原成真實消耗（js/offline.js；平時 null 零開銷）
     // 🏛️ 僅「經典+傳統」任何來源都不產生施法卷軸（武器/盔甲/飾品＋祝福/詛咒變體）——掉落／黑市／歐西里斯寶箱／血盟入盟禮／兌換等全擋；一般+傳統照常產生（供克里斯特→賦予祝福）
@@ -67,9 +88,7 @@ function gainItem(id, cnt=1, silent=false, forceNormal=false, affixOld=false) {
     // 紀錄這次產生的物品屬性
     let itemInfo = { id: id, cnt: cnt, en: _tEn, bless: bless, anc: anc, attr: attr, seteff: seteff };
     
-    if (!silent && d) {
-        logSys(`獲得物品: <span class="font-bold">${getItemFullName(itemInfo)}</span>`);
-    }
+    if (!silent && d) logGainItemCompact(itemInfo);
     renderTabs();
     if(DB.items[id] && DB.items[id].grantSkills) { calcStats(); renderSkillSelects(); }   // 取得授予技能的頭盔：立即生效
     

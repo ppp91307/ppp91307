@@ -177,6 +177,7 @@ function killMob(idx) {
     if (!mob || mob._dead) return;        // 冪等保護：同一隻怪只結算一次獎勵
     if (window.__afkKillTally && mob.n) __afkKillTally[mob.n] = (__afkKillTally[mob.n] || 0) + 1;   // 🌙 離線結算期間依怪名計殺（js/offline.js；平時 null 零開銷）
     mob._dead = true;
+    mob._deadAt = Date.now();
     try { vfxKill(mob); } catch(e){}   // ✨ VFX：擊殺粒子爆裂（趁格子 DOM 仍在、重繪前）
     try { playMobKill(mob); } catch(e){}   // 🔊 音效：怪物死亡（依怪名對應專屬死亡音，查無→通用擊殺音）
     if (mob.curHp > 0) mob.curHp = 0;     // 待清算期間不可被當成活目標
@@ -421,11 +422,14 @@ function killMob(idx) {
 //    空格交回 tick 出怪迴圈依格序(0→4)重排程新怪。目標死亡→-1，由 getTarget 依 [0,1,2,3,4] 自動鎖定下一個活著的位置。
 function settleDeadMobs() {
     let changed = false;
+    let _deadHold = state.ff ? 0 : 420;
+    let _now = Date.now();
     // 🆕 v2.7.47 取消死亡遞補（輸送帶壓實）：怪物死亡→原格清空(null)、存活怪維持原位不移動；空格交回出怪迴圈依格序(0→4)重新排程新怪。
     //    目標死亡→targetIdx=-1，下一 tick getTarget 自動鎖定「最早出生(_born 最小·場上存活最久)」的活怪（v3.0.11 由格位序改為出生序）。存活的目標位置不變（免 uid 重映射）。
     let _tgtDied = mapState.targetIdx >= 0 && mapState.mobs[mapState.targetIdx] && mapState.mobs[mapState.targetIdx]._dead;
     for (let i = 0; i < mapState.mobs.length; i++) {
-        if (mapState.mobs[i] && mapState.mobs[i]._dead) { mapState.mobs[i] = null; if (mapState.spawnAt) mapState.spawnAt[i] = null; changed = true; }
+        let _m = mapState.mobs[i];
+        if (_m && _m._dead && (!_deadHold || !_m._deadAt || _now - _m._deadAt >= _deadHold)) { mapState.mobs[i] = null; if (mapState.spawnAt) mapState.spawnAt[i] = null; changed = true; }
     }
     if (_tgtDied) mapState.targetIdx = -1;
     if (changed) renderMobs();
