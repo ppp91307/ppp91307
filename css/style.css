@@ -28,6 +28,9 @@
         #chat-panel.chat-collapsed { height: 48px !important; min-height: 48px !important; }
         #chat-panel.chat-collapsed > div:not(.panel-header) { display: none !important; }
         #chat-panel.chat-collapsed .panel-header { border-radius: 0.75rem; }
+        #col-left.chat-focus-mode #status-panel { display: none !important; }
+        #chat-panel.chat-focus-expanded { height: 740px !important; min-height: 740px !important; }
+        body.m-mobile #chat-panel.chat-focus-expanded { height: 72vh !important; min-height: 520px !important; }
 
         .chat-private-unread {
             position: absolute; z-index: 5; right: -8px; top: -9px;
