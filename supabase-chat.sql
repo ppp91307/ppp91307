@@ -11,6 +11,20 @@ create index if not exists chat_messages_global_idx on public.chat_messages(chan
 create index if not exists chat_messages_clan_idx on public.chat_messages(clan_id,created_at desc);
 alter table public.chat_messages enable row level security;
 
+create table if not exists public.online_presence(
+ user_id uuid primary key references auth.users(id) on delete cascade,
+ last_seen timestamptz not null default now()
+);
+alter table public.online_presence enable row level security;
+
+create or replace function public.chat_presence() returns integer language plpgsql security definer set search_path=public as $$
+declare n integer;
+begin if auth.uid() is null then raise exception '尚未登入';end if;
+ insert into online_presence(user_id,last_seen)values(auth.uid(),now())on conflict(user_id)do update set last_seen=now();
+ delete from online_presence where last_seen<now()-interval '2 minutes';
+ select count(*) into n from online_presence where last_seen>=now()-interval '1 minute';return n;
+end $$;
+
 create or replace function public.chat_send(p_channel text,p_content text) returns bigint language plpgsql security definer set search_path=public as $$
 declare cid uuid;mid bigint;clean text;
 begin
@@ -29,6 +43,6 @@ begin
  return query select x.id,coalesce(p.display_name,'冒險者'),x.content,x.created_at from(select m.* from chat_messages m where(p_channel='global' and m.channel='global')or(p_channel='clan' and m.channel='clan' and m.clan_id=cid)order by m.created_at desc limit 60)x left join market_profiles p on p.user_id=x.user_id order by x.created_at;
 end $$;
 
-revoke all on function public.chat_send(text,text),public.chat_read(text) from public;
-grant execute on function public.chat_send(text,text),public.chat_read(text) to authenticated;
+revoke all on function public.chat_send(text,text),public.chat_read(text),public.chat_presence() from public;
+grant execute on function public.chat_send(text,text),public.chat_read(text),public.chat_presence() to authenticated;
 notify pgrst,'reload schema';
