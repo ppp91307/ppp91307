@@ -1353,7 +1353,7 @@ const DB = {
         "bk_reduction_armor": { type: "skillbk", n: "技術書(增幅防禦)", p: 30000, sk: "sk_reduction_armor", gachaWeight: 10 },
         "bk_shock_stun": { type: "skillbk", n: "技術書(衝擊之暈)", p: 30000, sk: "sk_shock_stun", gachaWeight: 10 },
         "bk_spike_armor": { type: "skillbk", n: "技術書(尖刺盔甲)", p: 30000, sk: "sk_spike_armor", gachaWeight: 1 },
-        "bk_counter_barrier": { type: "skillbk", n: "技術書(反擊屏障)", p: 30000, sk: "sk_counter_barrier", gachaWeight: 1, d: "習得「反擊屏障」（增益・持續64秒）：裝備雙手武器時可發動反擊；裝備原生有反擊/居合的武器時，反擊與居合最終傷害×2。" },
+        "bk_counter_barrier": { type: "skillbk", n: "技術書(反擊屏障)", p: 30000, sk: "sk_counter_barrier", gachaWeight: 1, d: "習得「反擊屏障」（增益・持續64秒）：裝備雙手武器時可發動反擊；技能持續期間，成功發動的反擊最終傷害×2。戰鬥日誌會顯示「反擊屏障・反擊（傷害×2）」。" },
 
         // ===== 妖精精靈水晶 =====
         "bk_elf_mr": { type: "skillbk", n: "精靈水晶(魔法防禦)", p: 3000, sk: "sk_elf_mr", gachaWeight: 0 },
@@ -2396,7 +2396,7 @@ const DB = {
         "sk_reduction_armor": { n: "增幅防禦", type: "buff", tier: 1, reqK: 30, mp: 10, dur: 1200 },
         "sk_shock_stun": { n: "衝擊之暈", type: "atk", tier: 1, reqK: 30, mp: 12, dmgType: "physical", reqWpn: "w2h", skillAddDmg: 10, stunChance: 0.1, stun: 150 },
         "sk_spike_armor": { n: "尖刺盔甲", type: "buff", tier: 1, reqK: 30, mp: 10, dur: 1200, d: { meleeHit: 5 } },
-        "sk_counter_barrier": { n: "反擊屏障", type: "buff", tier: 1, reqK: 30, mp: 10, dur: 64, label: "增益", msg: "你擺出了反擊的架式。" },   // 🔧 雙手武器可發動反擊；原生反擊/居合武器的反擊與居合最終傷害×2（持續64秒，效果結束才再施放）
+        "sk_counter_barrier": { n: "反擊屏障", type: "buff", tier: 1, reqK: 30, mp: 10, dur: 64, label: "增益", msg: "你擺出了反擊的架式；成功反擊時最終傷害×2。" },   // 雙手武器可發動反擊；技能期間成功反擊的最終傷害×2（持續64秒，效果結束才再施放）
 
         // ================= 【妖精精靈魔法】 =================
         // 一階 (Lv 10)
