@@ -204,6 +204,23 @@
                 </div>
             </div>
 
+            <!-- 全服／血盟線上聊天室 -->
+            <div id="chat-panel" class="panel flex flex-col overflow-hidden" style="height:310px;min-height:240px;">
+                <div class="panel-header flex items-center justify-between gap-2 py-2 px-3">
+                    <span class="text-base font-bold">💬 線上聊天</span>
+                    <div class="flex gap-1">
+                        <button id="chat-tab-global" class="btn px-2 py-1 text-sm" onclick="chatSwitch('global')">全服</button>
+                        <button id="chat-tab-clan" class="btn px-2 py-1 text-sm" onclick="chatSwitch('clan')">血盟</button>
+                    </div>
+                </div>
+                <div id="chat-status" class="px-3 py-1 text-xs text-slate-400 border-b border-slate-700">等待連線…</div>
+                <div id="chat-messages" class="flex-1 overflow-y-auto px-3 py-2 text-sm space-y-1 bg-slate-950/60"></div>
+                <div class="flex gap-2 p-2 border-t border-slate-700">
+                    <input id="chat-input" maxlength="120" placeholder="輸入訊息…" class="min-w-0 flex-1 bg-slate-900 border border-slate-600 rounded px-2 py-1.5 text-white text-sm" onkeydown="if(event.key==='Enter')chatSend()">
+                    <button class="btn px-3 py-1.5 text-sm" onclick="chatSend()">發送</button>
+                </div>
+            </div>
+
             <!-- 🤝 協力傭兵隊伍面板（Phase 1：隊伍/技能設定分頁；無傭兵時自動隱藏，不佔版面） -->
             <div id="squad-panel" class="panel" style="display:none;">
                 <div class="panel-header flex items-center justify-center" style="user-select:none;"><span class="text-center">協力傭兵隊伍</span></div><!-- 🔧 v2.6.76 取消收合按鈕·面板恆展開（用戶要求） -->
@@ -612,5 +629,6 @@ Object.assign(DB.items.tsh_heroic,      {img:'assets/items/shirts/tsh_heroic.png
 <script src="supabase-config.js?v=20260711-market1"></script>
 <script src="afk-market.js?v=20260711-market3"></script>
 <script src="afk-clan-online.js?v=20260712-clan-full2"></script>
+<script src="afk-chat.js?v=20260712-chat1"></script>
 </body>
 </html>
