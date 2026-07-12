@@ -1061,13 +1061,14 @@ function renderStatusIconBar() {
     let bar=document.getElementById('status-icon-bar'); if(!bar||!player||!player.buffs)return;
     let rows=[],seen=new Set();
     // player.buffs 的數值單位就是「秒」，主迴圈每 10 tick（1 秒）扣 1；不可再除以 10。
-    let add=(name,seconds,label)=>{if(!name||seen.has(name))return;seen.add(name);let sec=Math.max(0,Math.ceil(Number(seconds)||0));rows.push({name,ticks:Number(seconds)||0,label:label||name,sec});};
+    let add=(name,seconds,label,src)=>{if(!name||seen.has(name))return;seen.add(name);let sec=Math.max(0,Math.ceil(Number(seconds)||0));rows.push({name,ticks:Number(seconds)||0,label:label||name,sec,src:src||''});};
     if((player.buffs.sk_greater_haste||0)>0)add('加速術',player.buffs.sk_greater_haste,'強力加速術');   // 💨 v3.0.94 強力加速術優先：沿用加速術圖示·先登錄→seen 去重蓋掉下行的一般加速
     if(player.buffs.haste>0||player._equipHaste)add('加速術',player.buffs.haste||0,'加速');
     if(player.buffs.brave>0)add('勇敢藥水',player.buffs.brave,'勇敢藥水');
     if(player.buffs.blue>0)add('藍色藥水',player.buffs.blue,'藍色藥水');
     if(player.buffs.cautious>0)add('慎重藥水',player.buffs.cautious,'慎重藥水');
     if(player.buffs.elfcookie>0)add('精靈餅乾',player.buffs.elfcookie,'精靈餅乾');
+    if(player.buffs.chocolate_cake>0)add('巧克力蛋糕',player.buffs.chocolate_cake,'巧克力蛋糕｜人物速度 +33%','assets/state-icons/巧克力蛋糕.png');
     if(player._setPoly||(player.buffs.poly>0&&player.poly))add('變形術',player.buffs.poly||0,'變身');
     Object.keys(STATUS_ICON_SKILLS).forEach(id=>{if((player.buffs[id]||0)>0)add(STATUS_ICON_SKILLS[id],player.buffs[id],DB.skills[id]?DB.skills[id].n:STATUS_ICON_SKILLS[id]);});
     // 持續治療不存於 player.buffs，而是以 0.1 秒 tick 記在 player.hots；換算成真正剩餘秒數後顯示。
@@ -1075,10 +1076,10 @@ function renderStatusIconBar() {
     // 🔧 v2.7.5 合併 2683「狀態圖示狂閃修正」：renderStatusEffects 每 tick(0.1秒) 呼叫本函式；原本每次都重建整排 innerHTML→所有 <img> 反覆重新解碼/重繪而狂閃。
     //   改「簽章式重建」：sig 只含 狀態種類/順序，不含秒數→種類/順序不變時不重建 DOM，僅更新 title(圖片保持不動、不閃)。
     // 🔧 v2.7.9 用戶要求：移除圖示上的動態倒數文字(.status-icon-time 不再產生)——剩餘秒數只留 hover title 提示；sig 隨之不需 T/P 位。
-    let sig=rows.map(x=>x.name+'|'+x.label).join('||');
+    let sig=rows.map(x=>x.name+'|'+x.label+'|'+x.src).join('||');
     if(bar.dataset.statusSig!==sig){
         bar.dataset.statusSig=sig;
-        bar.innerHTML=rows.map((x,i)=>{let title=x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':'');return `<div class="status-icon" data-status-index="${i}" title="${title}"><img src="assets/state-icons/${encodeURIComponent(x.name)}.jpg" alt="${x.label}"></div>`;}).join('');
+        bar.innerHTML=rows.map((x,i)=>{let title=x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':'');let src=x.src||`assets/state-icons/${encodeURIComponent(x.name)}.jpg`;return `<div class="status-icon" data-status-index="${i}" title="${title}"><img src="${src}" alt="${x.label}"></div>`;}).join('');
     } else {
         rows.forEach((x,i)=>{let icon=bar.querySelector(`[data-status-index="${i}"]`);if(!icon)return;icon.title=x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':'');});
     }

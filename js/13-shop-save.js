@@ -185,6 +185,11 @@ function getShopItemsForNpc(npcId) {
         const ancientAt = Math.max(0, list.indexOf('potion_ult') + 1);
         list.splice(ancientAt, 0, 'potion_ancient_heal', 'potion_ancient_strong', 'potion_ancient_ultimate');
     }
+    if (list.includes('potion_heal') && !list.includes('food_chocolate_cake')) {
+        list = list.slice();
+        const cakeAt = Math.max(0, list.indexOf('potion_haste') + 1);
+        list.splice(cakeAt, 0, 'food_chocolate_cake');
+    }
     return list.filter(id => {
         let d = DB.items[id];
         if (!d) return false;
@@ -581,7 +586,7 @@ function startGame() {
     player.lv = 1; player.exp = 0; player.gold = 1000;
     player.inv = []; player.eq = { wpn: null, helm: null, armor: null, shin: null, shield: null, cloak: null, tshirt: null, gloves: null, boots: null, ring1: null, ring2: null, ring3: null, ring4: null, amulet: null, ear1: null, ear2: null, belt: null }; player.junkPrefs = {};   // 🦵 shin=脛甲（遺物新增部位）
     player.skills = [];
-    player.summon = null; player.charmed = null; player.manualCd = {}; player.hot = null; player.hots = {}; player.elfEle = null; player.buffs = { haste: 0, brave: 0, blue: 0, cautious: 0, elfcookie: 0, poly: 0, shield: 0 };
+    player.summon = null; player.charmed = null; player.manualCd = {}; player.hot = null; player.hots = {}; player.elfEle = null; player.buffs = { haste: 0, brave: 0, blue: 0, cautious: 0, elfcookie: 0, chocolate_cake: 0, poly: 0, shield: 0 };
     
     ['set-haste', 'set-brave', 'set-blue', 'set-cautious', 'set-poly', 'set-auto-buy-pot', 'set-auto-buy-arrow'].forEach(id => {
         let el = document.getElementById(id);

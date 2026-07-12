@@ -180,6 +180,7 @@ function maybeSpawnMobs() {
                          : ((player.buffs.poly > 0 && player.poly && player.poly.wlk) ? player.poly.wlk : 16);   // 卷軸變身移動速度；未變身＝16
                 let _mv = 1;   // 加速/勇敢/餅乾也加快「移動速度」→加快重生（與攻速同倍率·相乘疊加）
                 if (player.buffs.haste > 0 || player._equipHaste) _mv *= 0.67;   // 加速術/裝備常駐加速 +33%
+                if (player.buffs.chocolate_cake > 0) _mv *= 0.67;                 // 巧克力蛋糕：人物移動速度 +33%
                 if (player.buffs.brave > 0) _mv *= 0.67;                          // 勇敢藥水 +33%
                 if (player.buffs.elfcookie > 0) _mv *= 0.85;                      // 精靈餅乾 +15%
                 if (player.d && player.d.moveSpeedPct) _mv *= (1 / (1 + Math.max(-95, player.d.moveSpeedPct) / 100));   // 🏺 遺物 寄居蟹背殼：移動速度%（負=變慢→重生延遲變長·-50%→×2=10秒；下限-95%防除零）

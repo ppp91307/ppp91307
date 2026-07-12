@@ -826,6 +826,7 @@ const DB = {
         "potion_ancient_strong": { n: "古代強力體力恢復劑", type: "pot", req: "all", p: 600, c: "text-orange-200", img: "assets/icons/items/古代強力體力恢復劑.png", d: "隨機恢復 60~80 HP；使用後無藥水延遲。", val: 70, valMin: 60, valMax: 80, potionDelay: 0, gachaWeight: 0 },
         "potion_ancient_ultimate": { n: "古代終極體力恢復劑", type: "pot", req: "all", p: 1500, c: "text-slate-100", img: "assets/icons/items/古代終極體力恢復劑.png", d: "隨機恢復 80~120 HP；使用後無藥水延遲。", val: 100, valMin: 80, valMax: 120, potionDelay: 0, gachaWeight: 0 },
         "potion_haste": { n: "自我加速藥水", type: "pot", req: "all", p: 200, c: "text-green-300", d: "玩家攻擊速度加快33%，持續300秒", eff: "haste", dur: 300, gachaWeight: 0 },
+        "food_chocolate_cake": { n: "巧克力蛋糕", type: "pot", req: "all", p: 1000, c: "text-amber-200", img: "assets/icons/items/巧克力蛋糕.png", d: "香甜濃郁的巧克力蛋糕。使用後人物速度加快33%，持續600秒。", eff: "chocolate_cake", dur: 600, gachaWeight: 0 },
         "potion_blue": { n: "藍色藥水", type: "pot", req: "all", p: 1046, c: "text-blue-300", d: "精神10以下MP恢復+1，11以上大幅增加，持續600秒", eff: "blue", dur: 600, gachaWeight: 0 },
         "potion_brave": { n: "勇敢藥水", type: "pot", req: "knight,dragon,warrior,royal", p: 880, c: "text-purple-300", d: "騎士／龍騎士／戰士／王族限定，玩家攻擊速度加快33%（可與加速／覺醒／變身相乘疊加），持續300秒", eff: "brave", dur: 300, gachaWeight: 0 },
         "new_item_139": { n: "精靈餅乾", type: "pot", req: "elf", p: 1980, c: "text-yellow-200", d: "妖精限定，攻擊速度加快15%，持續300秒", eff: "elfcookie", dur: 300, gachaWeight: 0 },

@@ -457,6 +457,7 @@ d.mr += (baseMr + bonusMr);
     
     let spdMult = 1.0;
     if(p.buffs.haste > 0 || p._equipHaste) spdMult *= 0.67;   // 自我加速 / 加速 / 裝備常駐加速 +33%
+    if(p.buffs.chocolate_cake > 0) spdMult *= 0.67;   // 巧克力蛋糕：人物攻擊速度 +33%，可與其他加速相乘
     if(p.buffs.brave > 0) spdMult *= 0.67;   // 勇敢藥水 +33%
     if(p.buffs.elfcookie > 0) spdMult *= 0.85; // 精靈餅乾 +15%
     if(p.buffs.sk_dark_walkhaste > 0) spdMult *= 0.85; // 🔧 行走加速：攻速+15%（與加速術等相乘疊加）
