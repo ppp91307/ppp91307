@@ -28,6 +28,21 @@
         #chat-panel.chat-collapsed { height: 48px !important; min-height: 48px !important; }
         #chat-panel.chat-collapsed > div:not(.panel-header) { display: none !important; }
         #chat-panel.chat-collapsed .panel-header { border-radius: 0.75rem; }
+
+        .chat-private-unread {
+            position: absolute; z-index: 5; right: -8px; top: -9px;
+            width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+            border-radius: 999px; border: 2px solid #fff; background: #ef2020; color: #fff;
+            font-size: 14px; font-weight: 900; line-height: 1;
+            box-shadow: 0 0 0 2px rgba(127,29,29,.9), 0 0 14px 5px rgba(239,32,32,.9);
+            animation: chatUnreadPulse .85s ease-in-out infinite alternate;
+            pointer-events: none;
+        }
+        .chat-private-unread.hidden { display: none !important; }
+        @keyframes chatUnreadPulse {
+            from { transform: scale(.92); filter: brightness(1); }
+            to { transform: scale(1.22); filter: brightness(1.35); }
+        }
         #status-panel > .panel-header { background: transparent; color: #fbbf24; text-shadow: none; }  /* 人物左上資訊框標題：還原原本顏色 */
         /* 🤝 隊伍／技能設定清單：視窗過小或傭兵較多導致下方隊員設定被擋住時，清單內部出現捲軸（面板標題與 隊伍/技能設定 分頁鈕保持固定）。
            狀態框不壓縮（數值/血條保持完整）；隊伍面板可縮小讓內部清單捲動→整塊面板不會被擠出視窗外。max-height 46vh 為上限（傭兵多時大螢幕也不會霸佔整欄，保留自動化設定可見）。 */

@@ -28,7 +28,7 @@
     <title>亞丁血盟：放置傳說</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
-    <link rel="stylesheet" href="css/style.css?v=20260712-ui-polish1">
+    <link rel="stylesheet" href="css/style.css?v=20260712-private-badge1">
     <link rel="stylesheet" href="css/floating-ui.css?v=cef1e683d5">
     <link rel="stylesheet" href="css/tailwind-built.css?v=c0926cfba4"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
     <style>
@@ -212,7 +212,7 @@
                         <button id="chat-id-btn" class="btn px-2 py-1 text-sm" onclick="chatSetId()">設定ID</button>
                         <button id="chat-tab-global" class="btn px-2 py-1 text-sm" onclick="chatSwitch('global')">全服</button>
                         <button id="chat-tab-clan" class="btn px-2 py-1 text-sm" onclick="chatSwitch('clan')">血盟</button>
-                        <button id="chat-tab-private" class="btn px-2 py-1 text-sm relative" onclick="chatPrivate()">私聊<span id="chat-private-unread" class="hidden absolute rounded-full bg-red-500" style="width:9px;height:9px;right:-3px;top:-3px;box-shadow:0 0 7px #ef4444" title="有未讀私訊"></span></button>
+                        <button id="chat-tab-private" class="btn px-2 py-1 text-sm relative" onclick="chatPrivate()">私聊<span id="chat-private-unread" class="chat-private-unread hidden" title="有未讀私訊">!</span></button>
                     </div>
                 </div>
                 <div id="chat-status" class="px-3 py-1 text-xs text-slate-400 border-b border-slate-700">等待連線…</div>
