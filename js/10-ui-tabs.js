@@ -286,7 +286,7 @@ function _renderEquipTab() {
 
     slots.forEach(s => {
         if (s.sherineRemain && s.k === 'sherine_claw') {
-            let h=document.createElement('div'); h.className='mt-3 mb-1 px-2 py-2 rounded bg-emerald-950/70 border border-emerald-600 text-emerald-300 font-bold'; h.innerHTML='🦴 席琳遺骸 <span class="text-xs text-slate-400">8 格・不占負重</span>'; eDiv.appendChild(h);
+            let h=document.createElement('div'); h.className='mt-3 mb-1 px-2 py-2 rounded bg-emerald-950/70 border border-emerald-600 text-emerald-300 font-bold'; h.innerHTML='🦴 席琳遺骸 <span class="text-xs text-slate-400">17 格・對應一般裝備部位・不占負重</span>'; eDiv.appendChild(h);
         }
         let eq = player.eq[s.k];
         let isSetActive = false;

@@ -739,14 +739,24 @@ let _vfxLootCtx = false;   // ✨ VFX：擊殺掉落期間設 true，供 gainIte
 // ⚠️ 舊存檔的具名 seteff（如「紅獅的復仇」）仍相容：各處一律以 seteff.slice(0,2) 取組名。
 const SHERINE_EFFECTS = ['紅獅','白鳥','鐵衛','麗人','疾風','月光','學徒','魔女','暗影','幻覺','龍血','狂怒'];   // ⚠️ 各名稱 slice(0,2) 須唯一（計件用）：幻覺/龍血/狂怒 與既有皆不撞
 const SHERINE_REMAIN_SLOTS = [
-    { key:'sherine_claw',  id:'sherine_remain_claw',  n:'之爪' },
-    { key:'sherine_eye',   id:'sherine_remain_eye',   n:'之眼' },
-    { key:'sherine_blood', id:'sherine_remain_blood', n:'之血' },
-    { key:'sherine_flesh', id:'sherine_remain_flesh', n:'之肉' },
-    { key:'sherine_heart', id:'sherine_remain_heart', n:'之心' },
-    { key:'sherine_bone',  id:'sherine_remain_bone',  n:'之骨' },
-    { key:'sherine_fang',  id:'sherine_remain_fang',  n:'之牙' },
-    { key:'sherine_scale', id:'sherine_remain_scale', n:'之鱗' }
+    // 內部 key/id 沿用舊版，避免既有玩家的遺骸與裝備資料失效；畫面名稱改為實際裝備部位。
+    { key:'sherine_claw',  id:'sherine_remain_claw',  n:'武器' },
+    { key:'sherine_eye',   id:'sherine_remain_eye',   n:'頭盔' },
+    { key:'sherine_blood', id:'sherine_remain_blood', n:'盔甲' },
+    { key:'sherine_flesh', id:'sherine_remain_flesh', n:'T恤' },
+    { key:'sherine_heart', id:'sherine_remain_heart', n:'手套' },
+    { key:'sherine_bone',  id:'sherine_remain_bone',  n:'長靴' },
+    { key:'sherine_fang',  id:'sherine_remain_fang',  n:'斗篷' },
+    { key:'sherine_scale', id:'sherine_remain_scale', n:'副手' },
+    { key:'sherine_horn',  id:'sherine_remain_horn',  n:'耳環 I' },
+    { key:'sherine_wing',  id:'sherine_remain_wing',  n:'耳環 II' },
+    { key:'sherine_tail',  id:'sherine_remain_tail',  n:'戒指 I' },
+    { key:'sherine_soul',  id:'sherine_remain_soul',  n:'戒指 II' },
+    { key:'sherine_hide',  id:'sherine_remain_hide',  n:'戒指 III' },
+    { key:'sherine_marrow',id:'sherine_remain_marrow',n:'戒指 IV' },
+    { key:'sherine_vein',  id:'sherine_remain_vein',  n:'腰帶' },
+    { key:'sherine_shell', id:'sherine_remain_shell', n:'項鍊' },
+    { key:'sherine_shin',  id:'sherine_remain_shin',  n:'脛甲' }
 ];
 function isSherineRemain(d) { return !!(d && d.sherineRemain); }
 // 套裝加成說明（資訊欄顯示用；計數=身上「不重複效果」數，同效果兩件只算 1）

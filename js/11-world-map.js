@@ -1334,11 +1334,15 @@ function exchangeSherineRemain(slotKey) {
     let el=document.getElementById('interaction-content');if(el)renderSherineIao(el);
 }
 function renderSherineIao(div) {
-    div.innerHTML=`<div class="p-2"><div class="text-emerald-300 font-bold text-lg mb-1">🦴 指定部位遺骸兌換</div><div class="text-slate-300 text-sm mb-3">席琳結晶 ×1 可換指定部位遺骸，套裝詞綴從 12 組中隨機產生。持有結晶：<b class="text-yellow-300">${sherineCrystalCount()}</b></div><div class="grid grid-cols-2 gap-2">${SHERINE_REMAIN_SLOTS.map(x=>`<button class="btn py-3" onclick="exchangeSherineRemain('${x.key}')">${x.n}<small class="block text-slate-400">結晶 ×1</small></button>`).join('')}</div></div>`;
+    div.innerHTML=`<div class="p-2"><div class="text-emerald-300 font-bold text-lg mb-1">🦴 指定部位遺骸兌換</div><div class="text-slate-300 text-sm mb-3">席琳結晶 ×1 可換 17 個裝備部位的指定遺骸，套裝詞綴從 12 組中隨機產生。持有結晶：<b class="text-yellow-300">${sherineCrystalCount()}</b></div><div class="grid grid-cols-2 md:grid-cols-4 gap-2">${SHERINE_REMAIN_SLOTS.map(x=>`<button class="btn py-3" onclick="exchangeSherineRemain('${x.key}')">${x.n}<small class="block text-slate-400">結晶 ×1</small></button>`).join('')}</div></div>`;
 }
-function legacySherineRemainDef(d) {
-    let map={wpn:'sherine_fang',helm:'sherine_eye',armor:'sherine_flesh',tshirt:'sherine_flesh',shin:'sherine_bone',gloves:'sherine_claw',boots:'sherine_bone',cloak:'sherine_scale',shield:'sherine_heart',belt:'sherine_blood',amulet:'sherine_blood',ring:'sherine_claw',ear:'sherine_eye'};
+function legacySherineRemainDef(d, ref) {
+    let map={wpn:'sherine_claw',helm:'sherine_eye',armor:'sherine_blood',tshirt:'sherine_flesh',gloves:'sherine_heart',boots:'sherine_bone',cloak:'sherine_fang',shield:'sherine_scale',ear:'sherine_horn',ring:'sherine_tail',belt:'sherine_vein',amulet:'sherine_shell',shin:'sherine_shin'};
     let key=map[d&&d.type==='wpn'?'wpn':(d&&d.slot)]||'sherine_heart';
+    if(ref==='eq:ear2') key='sherine_wing';
+    if(ref==='eq:ring2') key='sherine_soul';
+    if(ref==='eq:ring3') key='sherine_hide';
+    if(ref==='eq:ring4') key='sherine_marrow';
     return SHERINE_REMAIN_SLOTS.find(x=>x.key===key)||SHERINE_REMAIN_SLOTS[0];
 }
 function legacySherineRows() {
@@ -1351,7 +1355,7 @@ function splitLegacySherine(ref, all) {
     let rows=legacySherineRows(); if(!rows.length){logSys('目前沒有可拆分的舊席琳詞綴。');return;}
     let targets=all?rows:rows.filter(r=>r.ref===ref); if(!targets.length)return;
     let total=0;
-    targets.forEach(r=>{let cnt=r.where==='背包'?Math.max(1,r.it.cnt||1):1;let effect=r.it.seteff.slice(0,2);r.it.seteff=false;gainSherineRemain(legacySherineRemainDef(r.d),effect,cnt);total+=cnt;});
+    targets.forEach(r=>{let cnt=r.where==='背包'?Math.max(1,r.it.cnt||1):1;let effect=r.it.seteff.slice(0,2);r.it.seteff=false;gainSherineRemain(legacySherineRemainDef(r.d,r.ref),effect,cnt);total+=cnt;});
     if(typeof consolidateInventory==='function')consolidateInventory();
     logSys(`<span class="c-sherine font-bold">菈克希絲取下 ${total} 個舊席琳詞綴並轉化為遺骸；原裝備與其他詞綴全部保留。</span>`);
     calcStats();renderTabs(true);updateUI();saveGame();
@@ -1359,7 +1363,7 @@ function splitLegacySherine(ref, all) {
 }
 function renderSherineLachesis(div) {
     let rows=legacySherineRows();
-    div.innerHTML=`<div class="p-2"><div class="text-fuchsia-300 font-bold text-lg">🕯️ 舊席琳詞綴拆分</div><div class="text-slate-300 text-sm my-2">免費取下身上或背包裝備的舊席琳詞綴。裝備、強化、元素附魔與洗鍊能力完全保留；舊詞綴未拆前只顯示、不計套裝件數。</div>${rows.length?`<button class="btn w-full py-3 mb-3 bg-fuchsia-900 border-fuchsia-500" onclick="splitLegacySherine('',true)">全部拆分（${rows.reduce((n,r)=>n+(r.where==='背包'?(r.it.cnt||1):1),0)} 件）</button><div class="space-y-2">${rows.map(r=>`<div class="flex items-center justify-between gap-2 bg-slate-800 border border-slate-600 rounded p-2"><span><b>${getItemFullName(r.it)}</b><small class="block text-slate-400">${r.where}${(r.it.cnt||1)>1?'・數量 '+r.it.cnt:''} → ${legacySherineRemainDef(r.d).n}</small></span><button class="btn" onclick="splitLegacySherine('${r.ref}',false)">拆分</button></div>`).join('')}</div>`:'<div class="text-slate-400 border border-slate-700 rounded p-4">目前沒有舊席琳詞綴可拆分。</div>'}</div>`;
+    div.innerHTML=`<div class="p-2"><div class="text-fuchsia-300 font-bold text-lg">🕯️ 舊席琳詞綴拆分</div><div class="text-slate-300 text-sm my-2">免費取下身上或背包裝備的舊席琳詞綴。裝備、強化、元素附魔與洗鍊能力完全保留；舊詞綴未拆前只顯示、不計套裝件數。</div>${rows.length?`<button class="btn w-full py-3 mb-3 bg-fuchsia-900 border-fuchsia-500" onclick="splitLegacySherine('',true)">全部拆分（${rows.reduce((n,r)=>n+(r.where==='背包'?(r.it.cnt||1):1),0)} 件）</button><div class="space-y-2">${rows.map(r=>`<div class="flex items-center justify-between gap-2 bg-slate-800 border border-slate-600 rounded p-2"><span><b>${getItemFullName(r.it)}</b><small class="block text-slate-400">${r.where}${(r.it.cnt||1)>1?'・數量 '+r.it.cnt:''} → ${legacySherineRemainDef(r.d,r.ref).n}</small></span><button class="btn" onclick="splitLegacySherine('${r.ref}',false)">拆分</button></div>`).join('')}</div>`:'<div class="text-slate-400 border border-slate-700 rounded p-4">目前沒有舊席琳詞綴可拆分。</div>'}</div>`;
 }
 
 // ===== 🏅 威頓村 漢：職業精通任務 =====
