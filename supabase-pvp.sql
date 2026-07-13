@@ -10,7 +10,6 @@ create table if not exists public.pvp_profiles(
  draws integer not null default 0,
  updated_at timestamptz not null default now()
 );
-
 create table if not exists public.pvp_queue(
  user_id uuid primary key references auth.users(id) on delete cascade,
  display_name text not null,
@@ -41,6 +40,9 @@ create table if not exists public.pvp_matches(
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now()
 );
+alter table public.pvp_matches add column if not exists starts_at timestamptz;
+update public.pvp_matches set starts_at=coalesce(starts_at,created_at+interval '5 seconds') where starts_at is null;
+alter table public.pvp_matches alter column starts_at set default (now()+interval '5 seconds');
 create index if not exists pvp_matches_p1_idx on public.pvp_matches(player1_id,created_at desc);
 create index if not exists pvp_matches_p2_idx on public.pvp_matches(player2_id,created_at desc);
 create index if not exists pvp_queue_joined_idx on public.pvp_queue(joined_at);
@@ -50,17 +52,34 @@ alter table public.pvp_matches enable row level security;
 
 -- 對玩家傳來的戰鬥快照做伺服器端限幅，避免異常值破壞戰局。
 create or replace function public.pvp_safe_snapshot(p jsonb) returns jsonb
-language sql immutable set search_path=public as $$
- select jsonb_build_object(
+language plpgsql immutable set search_path=public as $$
+declare x jsonb; safe_buffs jsonb='[]'::jsonb;safe_statuses jsonb='[]'::jsonb;n integer:=0;t integer;d integer;
+begin
+ if jsonb_typeof(p->'buffs')='array' then
+  for x in select value from jsonb_array_elements(p->'buffs') limit 24 loop
+   n:=n+1;t:=case when coalesce(x->>'t','')~'^[0-9]+$' then least(86400,(x->>'t')::integer) else 0 end;
+   if t>0 then safe_buffs:=safe_buffs||jsonb_build_array(jsonb_build_object('id',left(coalesce(x->>'id','buff'),40),'n',left(coalesce(x->>'n','增益'),30),'t',t));end if;
+  end loop;
+ end if;
+ if jsonb_typeof(p->'statuses')='array' then
+  for x in select value from jsonb_array_elements(p->'statuses') limit 16 loop
+   t:=case when coalesce(x->>'t','')~'^[0-9]+$' then least(3600,(x->>'t')::integer) else 0 end;
+   d:=case when coalesce(x->>'dmg','')~'^[0-9]+$' then least(100000,(x->>'dmg')::integer) else 0 end;
+   if t>0 then safe_statuses:=safe_statuses||jsonb_build_array(jsonb_build_object('id',left(coalesce(x->>'id','status'),30),'n',left(coalesce(x->>'n','異常狀態'),30),'t',t,'dmg',d));end if;
+  end loop;
+ end if;
+ return jsonb_build_object(
   'lv',greatest(1,least(100,round(coalesce((p->>'lv')::numeric,1))::integer)),
   'class',left(coalesce(nullif(p->>'class',''),'冒險者'),20),
+  'avatar',left(coalesce(p->>'avatar',''),20),'morph',left(coalesce(p->>'morph',''),30),'weapon',left(coalesce(p->>'weapon','sword1'),20),
+  'buffs',safe_buffs,'statuses',safe_statuses,
   'max_hp',greatest(100,least(1000000,round(coalesce((p->>'max_hp')::numeric,100))::integer)),
   'atk',greatest(10,least(100000,round(coalesce((p->>'atk')::numeric,10))::integer)),
   'def',greatest(0,least(100000,round(coalesce((p->>'def')::numeric,0))::integer)),
   'crit',greatest(0,least(50,coalesce((p->>'crit')::numeric,0))),
   'speed',greatest(0.6,least(2.5,coalesce((p->>'speed')::numeric,1)))
  );
-$$;
+end $$;
 
 create or replace function public.pvp_state(p_match uuid) returns jsonb
 language plpgsql security definer set search_path=public as $$
@@ -72,7 +91,8 @@ begin
  select * into mine from pvp_profiles where user_id=auth.uid();
  return jsonb_build_object(
   'kind','match','id',m.id,'my_side',case when auth.uid()=m.player1_id then 1 else 2 end,
-  'status',m.status,'round',m.round,'winner_id',m.winner_id,'result_text',m.result_text,
+  'status',m.status,'round',m.round,'winner_id',m.winner_id,'result_text',m.result_text,'starts_at',m.starts_at,
+  'countdown',greatest(0,ceil(extract(epoch from(coalesce(m.starts_at,m.created_at)-now())))::integer),
   'player1',jsonb_build_object('id',m.player1_id,'name',m.player1_name,'tag',m.player1_tag,'stats',m.player1_stats,'hp',m.hp1),
   'player2',jsonb_build_object('id',m.player2_id,'name',m.player2_name,'tag',m.player2_tag,'stats',m.player2_stats,'hp',m.hp2),
   'log',m.battle_log,'record',jsonb_build_object('rating',mine.rating,'wins',mine.wins,'losses',mine.losses,'draws',mine.draws)
@@ -98,9 +118,9 @@ begin
   insert into pvp_queue(user_id,display_name,player_tag,snapshot) values(auth.uid(),me.display_name,me.player_tag,s);
   return jsonb_build_object('kind','queued','rating',mine.rating,'message','等待其他玩家進入競技場…');
  end if;
- insert into pvp_matches(player1_id,player2_id,player1_name,player2_name,player1_tag,player2_tag,player1_stats,player2_stats,hp1,hp2)
+ insert into pvp_matches(player1_id,player2_id,player1_name,player2_name,player1_tag,player2_tag,player1_stats,player2_stats,hp1,hp2,starts_at)
  values(foe.user_id,auth.uid(),foe.display_name,me.display_name,foe.player_tag,me.player_tag,pvp_safe_snapshot(foe.snapshot),s,
-        (pvp_safe_snapshot(foe.snapshot)->>'max_hp')::integer,(s->>'max_hp')::integer) returning id into mid;
+        (pvp_safe_snapshot(foe.snapshot)->>'max_hp')::integer,(s->>'max_hp')::integer,now()+interval '5 seconds') returning id into mid;
  delete from pvp_queue where user_id in(foe.user_id,auth.uid());
  return pvp_state(mid);
 end $$;
@@ -122,25 +142,33 @@ end $$;
 create or replace function public.pvp_tick(p_match uuid) returns jsonb
 language plpgsql security definer set search_path=public as $$
 declare m public.pvp_matches;a1 numeric;a2 numeric;df1 numeric;df2 numeric;sp1 numeric;sp2 numeric;cr1 numeric;cr2 numeric;
- d1 integer;d2 integer;c1 boolean;c2 boolean;nh1 integer;nh2 integer;win uuid;txt text;entry jsonb;
+ d1 integer;d2 integer;c1 boolean;c2 boolean;nh1 integer;nh2 integer;dot1 integer:=0;dot2 integer:=0;hard1 boolean:=false;hard2 boolean:=false;win uuid;txt text;entry jsonb;note text:='';
 begin
  select * into m from pvp_matches where id=p_match and auth.uid() in(player1_id,player2_id) for update;
  if m.id is null then raise exception '找不到這場競技';end if;
- if m.status<>'active' or now()-m.last_tick<interval '800 milliseconds' then return pvp_state(m.id);end if;
+ if m.status<>'active' or now()<coalesce(m.starts_at,m.created_at) or now()-m.last_tick<interval '800 milliseconds' then return pvp_state(m.id);end if;
  a1:=(m.player1_stats->>'atk')::numeric; a2:=(m.player2_stats->>'atk')::numeric;
  df1:=(m.player1_stats->>'def')::numeric; df2:=(m.player2_stats->>'def')::numeric;
  sp1:=(m.player1_stats->>'speed')::numeric; sp2:=(m.player2_stats->>'speed')::numeric;
  cr1:=(m.player1_stats->>'crit')::numeric; cr2:=(m.player2_stats->>'crit')::numeric;
- c1:=random()*100<cr1;c2:=random()*100<cr2;
- d1:=greatest(1,floor(a1*(0.85+random()*0.30)*(0.75+sp1*0.25)-df2*0.28)::integer);if c1 then d1:=d1*2;end if;
- d2:=greatest(1,floor(a2*(0.85+random()*0.30)*(0.75+sp2*0.25)-df1*0.28)::integer);if c2 then d2:=d2*2;end if;
- nh1:=greatest(0,m.hp1-d2);nh2:=greatest(0,m.hp2-d1);
+ select coalesce(bool_or((x->>'id') in('stun','freeze','stone','sleep','paralyze') and coalesce((x->>'t')::integer,0)>m.round),false),
+        coalesce(sum(case when (x->>'id') in('poison','burn','bleed','scald') and coalesce((x->>'t')::integer,0)>m.round then coalesce((x->>'dmg')::integer,0) else 0 end),0)
+ into hard1,dot1 from jsonb_array_elements(coalesce(m.player1_stats->'statuses','[]'::jsonb)) x;
+ select coalesce(bool_or((x->>'id') in('stun','freeze','stone','sleep','paralyze') and coalesce((x->>'t')::integer,0)>m.round),false),
+        coalesce(sum(case when (x->>'id') in('poison','burn','bleed','scald') and coalesce((x->>'t')::integer,0)>m.round then coalesce((x->>'dmg')::integer,0) else 0 end),0)
+ into hard2,dot2 from jsonb_array_elements(coalesce(m.player2_stats->'statuses','[]'::jsonb)) x;
+ c1:=not hard1 and random()*100<cr1;c2:=not hard2 and random()*100<cr2;
+ d1:=case when hard1 then 0 else greatest(1,floor(a1*(0.85+random()*0.30)*(0.75+sp1*0.25)-df2*0.28)::integer) end;if c1 then d1:=d1*2;end if;
+ d2:=case when hard2 then 0 else greatest(1,floor(a2*(0.85+random()*0.30)*(0.75+sp2*0.25)-df1*0.28)::integer) end;if c2 then d2:=d2*2;end if;
+ nh1:=greatest(0,m.hp1-d2-dot1);nh2:=greatest(0,m.hp2-d1-dot2);
+ if hard1 then note:=m.player1_name||' 無法行動';end if;if hard2 then note:=concat_ws('、',nullif(note,''),m.player2_name||' 無法行動');end if;
+ if dot1+dot2>0 then note:=concat_ws('、',nullif(note,''),'持續傷害 '||(dot1+dot2));end if;
  if nh1=0 or nh2=0 then
   if nh1=0 and nh2=0 then win:=null;txt:='雙方同時倒下，戰成平手';
   elsif nh2=0 then win:=m.player1_id;txt:=m.player1_name||' 獲得勝利';
   else win:=m.player2_id;txt:=m.player2_name||' 獲得勝利';end if;
  end if;
- entry:=jsonb_build_object('round',m.round+1,'d1',d1,'d2',d2,'c1',c1,'c2',c2,'hp1',nh1,'hp2',nh2);
+ entry:=jsonb_build_object('round',m.round+1,'d1',d1,'d2',d2,'c1',c1,'c2',c2,'hp1',nh1,'hp2',nh2,'dot1',dot1,'dot2',dot2,'hard1',hard1,'hard2',hard2,'note',note);
  update pvp_matches set hp1=nh1,hp2=nh2,round=round+1,battle_log=battle_log||jsonb_build_array(entry),last_tick=now(),updated_at=now(),
   status=case when nh1=0 or nh2=0 then 'finished' else 'active' end,winner_id=win,result_text=txt where id=m.id;
  if (nh1=0 or nh2=0) and not m.settled then
