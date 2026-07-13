@@ -13,6 +13,8 @@
             { k: 'belt',    x: 69.4, y: 45.6, w: 11.6, h: 9.1 },
             { k: 'shield',  x: 83.9, y: 49.0, w: 11.7, h: 9.7 },
             { k: 'ring2',   x: 83.0, y: 59.4, w: 11.5, h: 9.5 },
+            // 🦵 脛甲固定顯示在第一頁角色腿部旁；背景原本沒有黑框，因此由程式補上專屬欄位底框。
+            { k: 'shin',    x: 69.4, y: 68.2, w: 11.6, h: 9.1, visualFrame: true },
             { k: 'boots',   x: 82.3, y: 84.9, w: 11.8, h: 10.0 }
         ],
         [
@@ -23,7 +25,6 @@
             { k: 'pet',     x: 52.9, y: 53.4, w: 11.1, h: 9.1 },
             { k: 'arrow',   x: 83.9, y: 49.0, w: 11.7, h: 9.7 },
             { k: 'ring4',   x: 83.0, y: 59.4, w: 11.5, h: 9.5 },
-            { k: 'shin',    x: 69.4, y: 45.6, w: 11.6, h: 9.1 },
             { k: 'doll',    x: 82.3, y: 84.9, w: 11.8, h: 10.0 }
         ]
     ];
@@ -195,6 +196,12 @@
             slot.type = 'button';
             slot.className = 'equipment-visual-slot' + (item ? ' is-filled' : ' is-empty');
             slot.style.cssText = `left:${pos.x}%;top:${pos.y}%;width:${pos.w}%;height:${pos.h}%;`;
+            if (pos.visualFrame) {
+                slot.style.background = 'linear-gradient(145deg,rgba(2,6,12,.94),rgba(12,18,27,.88))';
+                slot.style.border = '1px solid rgba(112,128,148,.72)';
+                slot.style.boxShadow = 'inset 0 0 8px #000,0 1px 2px #000';
+                slot.style.borderRadius = '2px';
+            }
             if (item && data) {
                 const img = document.createElement('img');
                 img.src = getIconUrl(data);
@@ -225,7 +232,13 @@
                     unequipItem(pos.k);
                 };
             } else {
-                slot.title = '尚未裝備';
+                slot.title = pos.k === 'shin' ? '脛甲：尚未裝備' : '尚未裝備';
+                if (pos.k === 'shin') {
+                    const emptyLabel = document.createElement('span');
+                    emptyLabel.textContent = '脛甲';
+                    emptyLabel.style.cssText = 'color:#768396;font:700 11px/1 sans-serif;text-shadow:0 1px 2px #000;pointer-events:none;';
+                    slot.appendChild(emptyLabel);
+                }
                 slot.onclick = function () {
                     openEquipmentSidePanel((pos.k === 'wpn' || pos.k === 'offwpn' || pos.k === 'arrow') ? 'weapons' : 'armors');
                 };
