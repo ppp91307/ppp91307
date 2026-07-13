@@ -172,5 +172,20 @@ revoke all on function public.clan_create(text),public.clan_join_code(text),publ
 grant execute on function public.clan_create(text),public.clan_join_code(text),public.clan_apply(uuid),public.clan_invite(uuid),public.clan_review_application(uuid,boolean),public.clan_respond_invite(uuid,boolean),public.clan_donate(bigint),public.clan_search(text),public.clan_search_players(text),public.clan_my_state() to authenticated;
 grant execute on function public.market_ensure_profile(text) to authenticated;
 
+-- 盟主解散血盟（成員、申請、邀請與擴充資料依外鍵連帶刪除）。
+create or replace function public.clan_dissolve(p_confirm_name text) returns void
+language plpgsql security definer set search_path=public as $$
+declare cid uuid;cname text;
+begin
+ select c.id,c.name into cid,cname from clans c join clan_members m on m.clan_id=c.id
+ where m.user_id=auth.uid() and m.role='owner' for update;
+ if cid is null then raise exception '只有盟主可以解散血盟';end if;
+ if trim(coalesce(p_confirm_name,''))<>cname then raise exception '血盟名稱確認不正確';end if;
+ delete from clans where id=cid and owner_id=auth.uid();
+ if not found then raise exception '解散血盟失敗';end if;
+end $$;
+revoke all on function public.clan_dissolve(text) from public;
+grant execute on function public.clan_dissolve(text) to authenticated;
+
 -- 通知 Supabase Data API 立即重新讀取新資料表與 RPC 函式。
 notify pgrst, 'reload schema';
