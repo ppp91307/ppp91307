@@ -1536,22 +1536,42 @@ let _showMobHp = false;
 (function(){ try { let s = localStorage.getItem('lineage_idle_mob_hp'); if (s !== null) _showMobHp = (s === '1'); } catch(e){} })();
 function toggleMobHp(){ _showMobHp = !_showMobHp; try { localStorage.setItem('lineage_idle_mob_hp', _showMobHp ? '1' : '0'); } catch(e){} let b = document.getElementById('cf-btn-hp'); if (b) b.classList.toggle('cf-off', !_showMobHp); renderMobs(); }
 
-// 戰鬥日誌精簡模式：同招式／同目標的連續輸出更新同一行，避免高速角色洗頻。
+// 戰鬥日誌精簡模式：8 秒內的我方輸出、敵方傷害與連續擊殺各自更新摘要行，
+// 不再因為換目標、爆擊或不同招式就持續新增訊息。
 let _combatCompact = true;
 let _combatCompactRows = new Map();
+const COMBAT_COMPACT_WINDOW = 8000;
 (function(){ try { let s=localStorage.getItem('lineage_idle_combat_compact'); if(s!==null)_combatCompact=s!=='0'; } catch(e){} setTimeout(()=>{let b=document.getElementById('cf-btn-compact');if(b)b.classList.toggle('cf-off',!_combatCompact);},0); })();
 function toggleCombatCompact(){
     _combatCompact=!_combatCompact; _combatCompactRows.clear();
     try { localStorage.setItem('lineage_idle_combat_compact',_combatCompact?'1':'0'); } catch(e){}
     let b=document.getElementById('cf-btn-compact');if(b)b.classList.toggle('cf-off',!_combatCompact);
 }
-function _combatCompactInfo(msg){
+function _combatCompactEscape(s){
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function _combatCompactInfo(msg,type,src){
     let plain=String(msg||'').replace(/<[^>]*>/g,'').replace(/&nbsp;/g,' ').trim();
     let m=plain.match(/共\s*([\d,]+)\s*點傷害/)||plain.match(/造成\s*([\d,]+)\s*點傷害/);
-    if(!m)return null;
-    let dmg=Number(m[1].replace(/,/g,''));if(!Number.isFinite(dmg))return null;
-    let key=plain.replace(/\[[^\]]*\]\s*共\s*[\d,]+\s*點傷害/g,'[連擊] 共 # 點傷害').replace(/造成\s*[\d,]+\s*點傷害/g,'造成 # 點傷害');
-    return {key,dmg};
+    if(m){
+        let dmg=Number(m[1].replace(/,/g,''));if(!Number.isFinite(dmg))return null;
+        let enemySide=(type==='enemy');
+        return {kind:'damage',key:(enemySide?'enemy-damage':'ally-damage'),dmg,
+            render:(row)=>`<span class="${enemySide?'text-red-300':'text-amber-200'} font-bold">${enemySide?'承受傷害':'我方輸出'} ×${row.count}｜累計 ${row.total.toLocaleString()} 傷害</span>${row.crits?` <span class="crit-hit">（爆擊 ${row.crits} 次）</span>`:''}`};
+    }
+    let kill=plain.match(/^擊敗了\s+(.+?)！?$/);
+    if(kill){
+        let latest=kill[1].trim();
+        return {kind:'kill',key:'kills',dmg:0,latest,
+            render:(row)=>`<span class="text-yellow-300 font-bold">連續擊敗 ${row.count} 隻敵人｜最近：${_combatCompactEscape(row.latest)}</span>`};
+    }
+    // 高攻速職業反覆觸發的提示也只保留一行，內容不變時更新次數。
+    if(/流暢的手感|燃燒擊砍|烈焰隨刃迸發|下一擊燃起烈焰/.test(plain)){
+        let normalized=plain.replace(/【[^】]+】/g,'').replace(/\s+/g,' ').trim();
+        return {kind:'proc',key:'proc|'+normalized,dmg:0,
+            render:(row)=>`${row.first} <span class="text-slate-300 whitespace-nowrap">×${row.count}</span>`};
+    }
+    return null;
 }
 
 function logCombat(msg, type="player", src=null) {
@@ -1575,21 +1595,32 @@ function logCombat(msg, type="player", src=null) {
     else if (type === "evade") { colorClass = "text-teal-300"; } // ER獨立迴避 (淡青綠色)
 
     let _src = src || _combatSrc || (type === 'enemy' ? 'enemy' : 'player');   // 來源：明確指定 > 派發點情境(_combatSrc) > 依顏色type推定
-    if(_combatCompact && type!=='enemy' && type!=='player-crit' && type!=='miss' && type!=='dodge' && type!=='evade'){
-        let ci=_combatCompactInfo(msg);
+    if(_combatCompact && type!=='miss' && type!=='dodge' && type!=='evade'){
+        let ci=_combatCompactInfo(msg,type,_src);
         if(ci){
             let now=Date.now(),key=type+'|'+_src+'|'+ci.key,old=_combatCompactRows.get(key);
-            if(old&&old.el&&old.el.isConnected&&now-old.at<=3000){
-                old.at=now;old.count++;old.total+=ci.dmg;
-                old.el.innerHTML=old.first+` <span class="text-amber-200 font-bold whitespace-nowrap">×${old.count}｜累計 ${old.total.toLocaleString()} 傷害</span>`;
+            // 傷害摘要忽略一般／重擊／爆擊的 type 差異，依來源合併成同一行。
+            if(ci.kind==='damage') key=_src+'|'+ci.key;
+            if(ci.kind==='kill') key=_src+'|kills';
+            old=_combatCompactRows.get(key);
+            if(old&&old.el&&old.el.isConnected&&now-old.at<=COMBAT_COMPACT_WINDOW){
+                old.at=now;old.count++;old.total+=ci.dmg;old.latest=ci.latest||old.latest;
+                if(type==='player-crit')old.crits++;
+                old.el.innerHTML=ci.render(old);
                 if(!_combatLogLocked)_logScrollBottom(el);
                 return;
             }
         }
     }
     el.insertAdjacentHTML('beforeend', `<div class="log-entry ${colorClass} ${catClass}" data-src="${_src}">${msg}</div>`);   // 🚀 只解析新訊息、不重建整個日誌(原 innerHTML+= 會 O(n) 重建全部子節點，戰鬥洗版時造成卡頓)
-    if(_combatCompact && type!=='enemy' && type!=='player-crit' && type!=='miss' && type!=='dodge' && type!=='evade'){
-        let ci=_combatCompactInfo(msg);if(ci){let node=el.lastElementChild;_combatCompactRows.set(type+'|'+_src+'|'+ci.key,{el:node,at:Date.now(),count:1,total:ci.dmg,first:msg});}
+    if(_combatCompact && type!=='miss' && type!=='dodge' && type!=='evade'){
+        let ci=_combatCompactInfo(msg,type,_src);if(ci){
+            let node=el.lastElementChild,key=type+'|'+_src+'|'+ci.key;
+            if(ci.kind==='damage')key=_src+'|'+ci.key;
+            if(ci.kind==='kill')key=_src+'|kills';
+            _combatCompactRows.set(key,{el:node,at:Date.now(),count:1,total:ci.dmg,first:msg,latest:ci.latest||'',crits:type==='player-crit'?1:0});
+            if(_combatCompactRows.size>200)_combatCompactRows.delete(_combatCompactRows.keys().next().value);
+        }
     }
     // 🔒 鎖定捲動時保留更多歷史；未鎖定時維持一般上限
     let _max = _combatLogLocked ? COMBAT_LOG_MAX_LOCKED : COMBAT_LOG_MAX;
