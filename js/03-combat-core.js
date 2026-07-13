@@ -468,8 +468,8 @@ function tick() {
     }
     // 🔧 誘捕倒數已併入 tick() 每秒區塊的統一 buff 遞減點
 
-    // 夥伴攻擊判定 (每20 ticks = 2秒)：每個夥伴消耗 =項圈數量 的肉，造成 =項圈數量 次屬性傷害
-    if (state.ticks % 20 === 0 && !player.dead && player.partners && player.partners.length > 0) {
+    // 夥伴攻擊判定（每10 ticks = 1秒）：魅力仍是核心屬性，另加入角色等級與寵物養成成長。
+    if (state.ticks % 10 === 0 && !player.dead && player.partners && player.partners.length > 0) {
         // 賣出/丟棄項圈：自動解除沒有對應項圈的夥伴
         player.partners = player.partners.filter(nm => {
             if (petCollarCount(nm) > 0) return true;
@@ -484,6 +484,12 @@ function tick() {
             let _dpsPetSnap = _dpsSnap();   // 🎯 DPS：夥伴階段起點快照
             player.partners.forEach(nm => {
                 let pd = PET_DEF[nm]; if(!pd) return;
+                let _petGrowth = player.fourSystems && player.fourSystems.petGrowth;
+                let _petRec = (_petGrowth && _petGrowth.selected === nm && _petGrowth.pets) ? _petGrowth.pets[nm] : null;
+                let _petLv = _petRec ? Math.max(1, _petRec.lv || 1) : 1;
+                let _petStage = _petRec ? Math.max(0, _petRec.stage || 0) : 0;
+                let _petGrowthHit = Math.floor(_petLv / 5) + _petStage * 2;
+                let _petGrowthDmg = _petLv * 6 + _petStage * 30;
                 let hits = petCollarCount(nm);
                 for (let i = 0; i < hits; i++) {
                     if (target.curHp <= 0) break;
@@ -492,10 +498,12 @@ function tick() {
                     meat.cnt--;
                     if (meat.cnt <= 0) player.inv = player.inv.filter(it => it.id !== 'new_item_143');
                     // 命中 = 玩家等級 + 魅力×hitChaMult + 偏移(+寵裝命中) - 怪物等級 + 怪物AC
-                    let hv = Math.max(1, Math.min(20, player.lv + Math.floor(cha * ((pd.hitChaMult || 1) * (hasMastery('k_royal_pet') ? 1.2 : 1))) + pd.hitOff + pg.hit - target.lv + mobEffAC(target) + (hasSummonCtrlRing() ? 5 : 0) + (typeof _relicPartnerHit === 'function' ? _relicPartnerHit(nm) : 0)));   // 🔧 召喚控制戒指：召喚物命中+5；👑 夥伴精通：魅力命中係數×1.2；🏺 遺物夥伴專屬命中（哈士奇的骨棒：哈士奇+6）
+                    let hv = Math.max(1, Math.min(20, player.lv + Math.floor(cha * ((pd.hitChaMult || 1) * (hasMastery('k_royal_pet') ? 1.35 : 1.15))) + pd.hitOff + pg.hit + _petGrowthHit - target.lv + mobEffAC(target) + (hasSummonCtrlRing() ? 5 : 0) + (typeof _relicPartnerHit === 'function' ? _relicPartnerHit(nm) : 0)));
                     let r = roll(1, 20);
                     if (r === 20 || (r !== 1 && hv >= r) || (r === 19 && hasSummonCtrlRing())) {
-                        let dmg = Math.max(1, roll(1, Math.max(1, player.lv + pd.diceOff)) + Math.floor(cha * ((pd.chaMult || 1) * (hasMastery('k_royal_pet') ? 1.2 : 1))) + pg.dmg - (target.dr || 0));   // 👑 夥伴精通：魅力傷害係數×1.2
+                        let _chaPower = Math.floor(cha * (pd.chaMult || 1) * (hasMastery('k_royal_pet') ? 4.0 : 3.0));
+                        let _levelPower = Math.floor((player.lv || 1) * 2);
+                        let dmg = Math.max(1, roll(1, Math.max(1, player.lv + pd.diceOff)) + _levelPower + _chaPower + _petGrowthDmg + pg.dmg - (target.dr || 0));
                         dmg = Math.max(1, Math.floor(dmg * royalAllyMult()));   // 👑 王族魅力加成：項圈夥伴造成傷害 ×(1+魅力/100)（非王族＝×1）
                         target.curHp -= dmg; target.justHit = pd.ele; mobWake(target);
                         logCombat(`夥伴 [${nm}] 撕咬 <span class="${getMobColor(target.lv)}">${target.n}</span>，造成 ${dmg} 點${pd.eleName}屬性傷害！`, 'player-special');
