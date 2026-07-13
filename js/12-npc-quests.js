@@ -690,29 +690,19 @@ function leavePledge(faction) {
 // 按鈕版面：原本的全寬兌換鈕改為左右各半（左＝一般兌換、右＝席琳兌換）。
 // 僅提供給「成品部位可附加套裝效果」的兌換（武器/頭盔/盔甲/手套/長靴/斗篷/腰帶）。
 function sherineExBtns(label, normalCall, sherineCall) {
-    let _shBtn = player.classicMode   // 🎮 經典模式：隱藏席琳兌換選項（一般兌換鈕 flex-1 自動撐滿整列）
-        ? ''
-        : `<button class="btn flex-1 bg-green-900 hover:bg-green-800 border-green-600 py-3 text-base font-bold" onclick="${sherineCall}" title="額外消耗 1 個席琳結晶：成品必定附帶一種席琳套裝效果"><span class="c-sherine">席琳兌換</span>：${label}</button>`;
     return `<div class="flex gap-2 w-full">
         <button class="btn flex-1 bg-blue-800 py-3 text-base font-bold" onclick="${normalCall}">兌換：${label}</button>
-        ${_shBtn}
     </div>`;
 }
 // 席琳兌換前置檢查（於原材料檢查通過後、扣除材料前呼叫）：沒有結晶 → 提示並中止
 function sherineExCheck(sherine) {
     if (!sherine) return true;
-    if (questCountId('sherine_crystal') < 1) {   // 🔧 含倉庫
-        logSys('<span class="text-red-400 font-bold">材料不足，無法兌換。</span><span class="text-red-300">（尚缺：席琳結晶 1）</span>');
-        return false;
-    }
-    return true;
+    logSys('<span class="c-sherine font-bold">席琳兌換已改為遺骸系統，請到席琳神殿找伊奧。</span>');
+    return false;
 }
 // 席琳兌換發放獎勵：扣 1 個結晶並使成品必定附帶套裝效果（取代各兌換函式中的 gainItem）
 function sherineExGain(rewardId, sherine) {
-    if (sherine) {
-        questConsumeId('sherine_crystal', 1);   // 🔧 背包優先，不足扣倉庫
-        _forceSherineSet = true;
-    }
+    if (sherine) { logSys('<span class="c-sherine font-bold">請到席琳神殿找伊奧兌換遺骸。</span>'); return; }
     { let _sv = _tradLootCtx; _tradLootCtx = true; try { gainItem(rewardId, 1, false, false); } finally { _tradLootCtx = _sv; } }   // 🏛️ 傳統模式：兌換裝備比照掉落/製作自帶隨機強化值（forceNormal=false：詞綴機率同一般兌換）
     _forceSherineSet = false;
 }
@@ -732,6 +722,7 @@ function trialQtyBar() {
 function trialQtyAdj(d) { let el = document.getElementById('trial-qty'); if (!el) return; el.value = Math.max(1, (parseInt(el.value) || 1) + d); }
 function trialQtyVal() { let el = document.getElementById('trial-qty'); let v = el ? parseInt(el.value) : 1; return (!v || v < 1) ? 1 : v; }
 function trialRun(reqs, rewardId, sherine) {
+    if (sherine) { logSys('<span class="c-sherine font-bold">席琳兌換已改為遺骸系統，請到席琳神殿找伊奧。</span>'); return 0; }
     let norm = reqs.map(r => Array.isArray(r) ? r : [r, 1]);
     let maxN = Math.min.apply(null, norm.map(p => Math.floor(questCountId(p[0]) / (p[1] || 1))));
     if (!isFinite(maxN)) maxN = 0;

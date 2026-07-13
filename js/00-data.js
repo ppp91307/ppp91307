@@ -725,8 +725,16 @@ const DB = {
         "rng_water": { n: "水靈戒指", type: "acc", slot: "ring", ac: 0, resWater: 10, req: "all", safe: 0, p: 50000, gachaWeight: 1, d: "封存著潺潺水靈的戒指，指尖彷彿淌過清泉。蘊含流水之力的戒指。" },
         "rng_wind": { n: "風靈戒指", type: "acc", slot: "ring", ac: 0, resWind: 10, req: "all", safe: 0, p: 50000, gachaWeight: 1, d: "封存著疾風精魄的戒指，戴上便覺步履輕盈。蘊含疾風之力的戒指。" },
         "rng_fire": { n: "火靈戒指", type: "acc", slot: "ring", ac: 0, resFire: 10, req: "all", safe: 0, p: 50000, gachaWeight: 1, d: "封存著熾烈火魂的戒指，掌心始終餘有一絲溫熱。蘊含烈焰之力的戒指。" },
-        "sherine_crystal": { n: "席琳結晶", type: "etc", p: 0, noUse: true, c: "c-sherine", gachaWeight: 0, d: "蘊含席琳力量的珍貴結晶，無法直接使用。進行「席琳製作」時加入材料，可使成品必定附帶一種席琳套裝效果。（席琳的世界掉落限定）" },   // 🔮 潘朵拉抽不到(gachaWeight:0)、無法使用(noUse)、名稱同套裝綠光(c-sherine)
-        "potion_sherine_reroll": { n: "席琳洗鍊藥水", type: "misc", eff: "sherine_reroll", p: 100000, c: "c-sherine", img: "assets/icons/items/藍色藥水.png", gachaWeight: 0, d: "蘊含席琳神力的洗鍊藥水。使用後可選擇武器、防具、內衣、項鍊、腰帶或戒指，隨機重洗為 12 種席琳套裝效果之一；遺物與箭矢不可使用。奇岩村莊的邁爾限定販售。" },
+        "sherine_crystal": { n: "席琳結晶", type: "etc", p: 0, noUse: true, c: "c-sherine", gachaWeight: 0, d: "蘊含席琳力量的珍貴結晶。可在席琳神殿交給伊奧，兌換指定部位的席琳遺骸。" },
+        "sherine_remain_claw":  { n:"席琳遺骸・之爪", type:"acc", slot:"sherine_claw",  req:"all", p:0, safe:0, noEnhance:true, noSell:true, sherineRemain:true, gachaWeight:0, d:"不占負重、不能強化且沒有基礎能力；只承載一種席琳套裝詞綴。" },
+        "sherine_remain_eye":   { n:"席琳遺骸・之眼", type:"acc", slot:"sherine_eye",   req:"all", p:0, safe:0, noEnhance:true, noSell:true, sherineRemain:true, gachaWeight:0, d:"不占負重、不能強化且沒有基礎能力；只承載一種席琳套裝詞綴。" },
+        "sherine_remain_blood": { n:"席琳遺骸・之血", type:"acc", slot:"sherine_blood", req:"all", p:0, safe:0, noEnhance:true, noSell:true, sherineRemain:true, gachaWeight:0, d:"不占負重、不能強化且沒有基礎能力；只承載一種席琳套裝詞綴。" },
+        "sherine_remain_flesh": { n:"席琳遺骸・之肉", type:"acc", slot:"sherine_flesh", req:"all", p:0, safe:0, noEnhance:true, noSell:true, sherineRemain:true, gachaWeight:0, d:"不占負重、不能強化且沒有基礎能力；只承載一種席琳套裝詞綴。" },
+        "sherine_remain_heart": { n:"席琳遺骸・之心", type:"acc", slot:"sherine_heart", req:"all", p:0, safe:0, noEnhance:true, noSell:true, sherineRemain:true, gachaWeight:0, d:"不占負重、不能強化且沒有基礎能力；只承載一種席琳套裝詞綴。" },
+        "sherine_remain_bone":  { n:"席琳遺骸・之骨", type:"acc", slot:"sherine_bone",  req:"all", p:0, safe:0, noEnhance:true, noSell:true, sherineRemain:true, gachaWeight:0, d:"不占負重、不能強化且沒有基礎能力；只承載一種席琳套裝詞綴。" },
+        "sherine_remain_fang":  { n:"席琳遺骸・之牙", type:"acc", slot:"sherine_fang",  req:"all", p:0, safe:0, noEnhance:true, noSell:true, sherineRemain:true, gachaWeight:0, d:"不占負重、不能強化且沒有基礎能力；只承載一種席琳套裝詞綴。" },
+        "sherine_remain_scale": { n:"席琳遺骸・之鱗", type:"acc", slot:"sherine_scale", req:"all", p:0, safe:0, noEnhance:true, noSell:true, sherineRemain:true, gachaWeight:0, d:"不占負重、不能強化且沒有基礎能力；只承載一種席琳套裝詞綴。" },
+        "potion_sherine_reroll": { n: "席琳洗鍊藥水（已停用）", type: "misc", noUse:true, p:0, c:"text-slate-500", gachaWeight:0, deprecated:true, d:"遺骸系統更新後已停用；舊存檔持有量會自動等量轉為席琳結晶。" },
         "item_dragon_claw": { n: "飛龍的爪子", p: 1, c: "text-blue-300", noUse: true, gachaWeight: 0, d: "鋒利如刃的巨爪，仍殘留著撕裂風與骨的記憶，似乎與龍之谷深處的傳說有關……（無法使用）" },   // 🔧 卡瑞任務道具：飛龍 1% 掉落
         "item_lizard_horn": { n: "蜥蜴的角", p: 1, c: "text-blue-300", noUse: true, gachaWeight: 0, d: "邪惡蜥蜴額上隆起的尖角，泛著爬蟲類特有的冷光，似乎與龍之谷深處的傳說有關……（無法使用）" },   // 🔧 卡瑞任務道具：邪惡蜥蜴 0.01% 掉落
         "item_crystal_ball": { n: "水晶球", p: 1, c: "text-blue-300", noUse: true, gachaWeight: 0, d: "巫師用以窺探命運的水晶球，霧色在其中緩緩流轉，似乎與龍之谷深處的傳說有關……（無法使用）" },   // 🔧 卡瑞任務道具：巫師 0.01% 掉落
@@ -2236,7 +2244,9 @@ const DB = {
         "town_sherine": {   // 🔮 新安全區：席琳神殿
             n: "席琳神殿",
             npcs: [
-                { id: "npc_sherine", n: "席琳", title: "祈禱", type: "pray", d: "靜謐的神女席琳，傾聽虔誠者的禱詞。等級 40 以上可向席琳祈禱，開啟或關閉「席琳的世界」。" }
+                { id: "npc_sherine", n: "席琳", title: "祈禱", type: "pray", d: "靜謐的神女席琳，傾聽虔誠者的禱詞。等級 40 以上可向席琳祈禱，開啟或關閉「席琳的世界」。" },
+                { id: "npc_sherine_iao", n: "伊奧", title: "遺骸兌換", type: "exchange", d: "使用席琳結晶兌換指定部位的席琳遺骸；套裝詞綴會隨機產生。" },
+                { id: "npc_sherine_lachesis", n: "菈克希絲", title: "舊詞綴拆分", type: "exchange", d: "免費取下舊裝備上的席琳套裝詞綴，轉化為席琳遺骸；裝備與其他能力全部保留。" }
             ]
         },
         "town_silent": {   // 🔧 黑暗妖精出生地：沉默洞穴

@@ -179,7 +179,7 @@ const SHOP_LISTS = {
 };
 // 🔧 商店販售清單（單一來源）：getShopItemsForNpc 與潘朵拉權重覆寫共用此表
 function getShopItemsForNpc(npcId) {
-    let list = npcId === 'npc_meyer' ? SHOP_LISTS.default.concat(['potion_sherine_reroll']) : (SHOP_LISTS[npcId] || SHOP_LISTS.default);
+    let list = SHOP_LISTS[npcId] || SHOP_LISTS.default;   // 🦴 遺骸新制：邁爾不再販售席琳洗鍊藥水
     if (list.includes('potion_heal') && !list.includes('potion_ancient_heal')) {
         list = list.slice();
         const ancientAt = Math.max(0, list.indexOf('potion_ult') + 1);
@@ -879,18 +879,26 @@ function loadGame() {
         let _normAttr = (i) => { if (i && !getAttrAffix(i.attr)) i.attr = false; };
         player.inv.forEach(_normAttr);
         for (let k in player.eq) _normAttr(player.eq[k]);
-        // 🔮 席琳套裝效果改置腰帶：一次性清除既有「項鍊」上的套裝效果（背包/裝備/傭兵快照/共用倉庫）
+        // 🦴 舊裝備上的席琳詞綴保留顯示，等待菈克希絲免費拆分。
+        // 舊版席琳洗鍊藥水已停用；載入時等量轉為席琳結晶，保留玩家已購買的價值。
         {
-            let _fixSet = (it) => { if (it && it.seteff) { let dd = DB.items[it.id]; if (dd && dd.slot === 'amulet') it.seteff = false; } };
-            player.inv.forEach(_fixSet);
-            for (let k in player.eq) _fixSet(player.eq[k]);
-            (player.allies || []).forEach(a => { if (a && a.eq) { for (let k in a.eq) _fixSet(a.eq[k]); } if (a && a.inv) a.inv.forEach(_fixSet); });
-            try { let _w = loadWarehouse(); let _chg = false; _w.items.forEach(it => { if (it && it.seteff) { let dd = DB.items[it.id]; if (dd && dd.slot === 'amulet') { it.seteff = false; _chg = true; } } }); if (_chg) saveWarehouse(_w); } catch (e) {}
+            let _oldPotions = player.inv.filter(i => i.id === 'potion_sherine_reroll').reduce((n,i)=>n+(i.cnt||1),0);
+            if (_oldPotions > 0) {
+                player.inv = player.inv.filter(i => i.id !== 'potion_sherine_reroll');
+                let _cr = player.inv.find(i => i.id === 'sherine_crystal' && !i.lock);
+                if (_cr) _cr.cnt = (_cr.cnt||1) + _oldPotions;
+                else player.inv.push({id:'sherine_crystal',uid:uid(),cnt:_oldPotions,en:0,bless:false,anc:false,attr:false,seteff:false,lock:false,junk:false});
+            }
+            try {
+                let _w=loadWarehouse(), _wc=(_w.items||[]).filter(i=>i.id==='potion_sherine_reroll').reduce((n,i)=>n+(i.cnt||1),0);
+                if(_wc>0){_w.items=_w.items.filter(i=>i.id!=='potion_sherine_reroll');let _crw=_w.items.find(i=>i.id==='sherine_crystal'&&!i.lock);if(_crw)_crw.cnt=(_crw.cnt||1)+_wc;else _w.items.push({id:'sherine_crystal',uid:uid(),cnt:_wc,en:0,bless:false,anc:false,attr:false,seteff:false,lock:false,junk:false});saveWarehouse(_w);}
+            } catch(e) {}
         }
         consolidateInventory();   // 相容舊存檔：合併修復前被拆分的相同卷軸/物品堆疊
         purgeCompletedElfWhisper();   // 🔥 載入時：若已交付完成精靈的私語階段，自動清除身上殘留的精靈的私語
         if(!player.statuses) player.statuses = { stun: 0, freeze: 0, stone: 0, poison: 0, poisonDmg: 0, poisonTick: 0, burn: 0, burnDmg: 0, burnTick: 0, scald: 0, scaldDmg: 0, scaldTick: 0, bleed: 0, bleedDmg: 0, bleedTick: 0, sleep: 0, silence: 0, paralyze: 0 };
         if (player.eq.arrow === undefined) player.eq.arrow = null; // 相容舊存檔
+        if (typeof SHERINE_REMAIN_SLOTS !== 'undefined') SHERINE_REMAIN_SLOTS.forEach(x => { if (player.eq[x.key] === undefined) player.eq[x.key] = null; });
         // 相容舊存檔：手套曾被錯存於 eq.glove（單數），搬移到正確的 gloves 欄位
         if (player.eq.glove) { if (!player.eq.gloves) player.eq.gloves = player.eq.glove; delete player.eq.glove; }
 

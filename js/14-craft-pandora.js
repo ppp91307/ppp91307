@@ -402,7 +402,7 @@ function craftActionHtml(npcId, idx) {
     //（消耗相同材料＋每件 1 個席琳結晶，成品必定附帶隨機席琳套裝效果；其餘詞綴機率照舊）
     let _r = CRAFT_RECIPES[npcId] && CRAFT_RECIPES[npcId][idx];
     let _rd = _r && DB.items[_r.result];
-    let _shOk = _rd && !player.classicMode && sherineSetEligible(_rd);   // 🔮 單一真相＝sherineSetEligible（含副手盾牌/臂甲 slot:shield）；勿再 inline 複製部位清單
+    let _shOk = false;   // 🦴 新制：席琳效果只由遺骸承載，舊「席琳製作」入口停用
     let _shBtn = _shOk ? `<button class="btn bg-green-900 hover:bg-green-800 border-green-600 py-2 px-3 font-bold shadow" onclick="doCraft('${npcId}', ${idx}, true)" title="消耗相同材料＋每件 1 個席琳結晶：成品必定附帶一種席琳套裝效果"><span class="c-sherine">席琳製作</span></button>` : '';
     return `<div class="flex items-center gap-2 shrink-0">
         <input type="number" min="1" value="1" id="craft-qty-${npcId}-${idx}" onclick="event.stopPropagation()" class="w-14 px-1 py-2 bg-slate-900 border border-slate-600 rounded text-center text-white font-bold">
@@ -872,6 +872,7 @@ function craftShortfall(recipe, count) {
     return lack;
 }
 function doCraft(npcId, recipeIdx, sherine) {   // 🔮 sherine=true：席琳製作（材料＋每件 1 個席琳結晶，成品必帶套裝效果）
+    if (sherine) { logSys('<span class="c-sherine font-bold">席琳製作已改為遺骸系統，請到席琳神殿找伊奧兌換遺骸。</span>'); return; }
     let recipe = CRAFT_RECIPES[npcId][recipeIdx];
     if (!recipe) return;
 

@@ -738,6 +738,17 @@ let _vfxLootCtx = false;   // ✨ VFX：擊殺掉落期間設 true，供 gainIte
 // 套裝名冠在裝備名稱前（如「紅獅環甲」），資訊欄列出 2/3/5 件加成；名稱顏色規則同前（c-sherine 鮮綠＋光暈）。
 // ⚠️ 舊存檔的具名 seteff（如「紅獅的復仇」）仍相容：各處一律以 seteff.slice(0,2) 取組名。
 const SHERINE_EFFECTS = ['紅獅','白鳥','鐵衛','麗人','疾風','月光','學徒','魔女','暗影','幻覺','龍血','狂怒'];   // ⚠️ 各名稱 slice(0,2) 須唯一（計件用）：幻覺/龍血/狂怒 與既有皆不撞
+const SHERINE_REMAIN_SLOTS = [
+    { key:'sherine_claw',  id:'sherine_remain_claw',  n:'之爪' },
+    { key:'sherine_eye',   id:'sherine_remain_eye',   n:'之眼' },
+    { key:'sherine_blood', id:'sherine_remain_blood', n:'之血' },
+    { key:'sherine_flesh', id:'sherine_remain_flesh', n:'之肉' },
+    { key:'sherine_heart', id:'sherine_remain_heart', n:'之心' },
+    { key:'sherine_bone',  id:'sherine_remain_bone',  n:'之骨' },
+    { key:'sherine_fang',  id:'sherine_remain_fang',  n:'之牙' },
+    { key:'sherine_scale', id:'sherine_remain_scale', n:'之鱗' }
+];
+function isSherineRemain(d) { return !!(d && d.sherineRemain); }
 // 套裝加成說明（資訊欄顯示用；計數=身上「不重複效果」數，同效果兩件只算 1）
 const SHERINE_SET_TEXT = {
     '紅獅': ['2件：額外傷害+5、額外魔法點數+3', '3件：傷害減免+10', '5件：最終傷害+20%（普攻與技能皆適用）'],

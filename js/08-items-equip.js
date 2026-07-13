@@ -62,21 +62,8 @@ function gainItem(id, cnt=1, silent=false, forceNormal=false, affixOld=false) {
         attr = _af.attr; bless = _af.bless; anc = _af.anc;
     }
 
-    // 🔮 席琳套裝效果：指定部位（武器/頭盔/盔甲/脛甲/手套/長靴/斗篷/盾牌/腰帶/項鍊）
-    //  - 席琳的世界擊殺掉落：一般怪0.1%、恩賜怪0.5%、頭目5%（9 組均勻抽一；🔮 瘋狂的席琳世界再 ×3）
-    //  - 席琳製作（_forceSherineSet）：必定附帶隨機一種
+    // 🦴 新制：一般裝備不再生成席琳詞綴；席琳效果只存在專屬遺骸。
     let seteff = false;
-    if (d) {
-        let _slotOk = sherineSetEligible(d);
-        if (_slotOk && _sherineLootCtx && lootRng('setdrop') < (_sherineLootCtx.boss ? 0.05 : (_sherineLootCtx.grace ? 0.005 : 0.001)) * (_sherineLootCtx.mad ? 3 : 1)) {   // 🎲 committed RNG
-            seteff = SHERINE_EFFECTS[Math.floor(lootRng('setpick') * SHERINE_EFFECTS.length)];
-            logSys(`<span class="c-sherine font-bold">✦ 掉落的裝備蘊含著席琳的祝福：【${seteff}】！</span>`);
-        }
-        if (_slotOk && !seteff && _forceSherineSet) {
-            seteff = SHERINE_EFFECTS[Math.floor(lootRng('setpick') * SHERINE_EFFECTS.length)];
-            logSys(`<span class="c-sherine font-bold">✦ 席琳結晶引導出套裝效果：【${seteff}】！</span>`);
-        }
-    }
 
     // 🏛️ 傳統模式：掉落／黑市／製作的「裝備」隨機自帶強化值（_tradLootCtx 期間；商店 forceNormal=true 不設→恆 +0；箭矢/材料/消耗品不套）
     let _tEn = (_tradLootCtx && !forceNormal && d && !d.noEnhance && ((d.type === 'wpn' && !d.isArrow) || d.type === 'arm' || d.type === 'acc') && traditionalActive()) ? rollTraditionalEnhance(d) : 0;   // 🏛️ 無法強化的裝備（古老系列 noEnhance）恆 +0，不自帶強化值
@@ -268,10 +255,7 @@ function getItemFullName(item) {
 // silent=true：自動使用（不寫日誌、瞬移卷軸不引動傳送控制戒指、不進隱藏區域）
 // keepModal=true：非玩家點擊觸發的使用（如自動找 BOSS 的瞬移），不關掉玩家正在看的物品視窗
 function sherinePotionEligible(d) {
-    if (!d || (typeof isRelic === 'function' && isRelic(d)) || d.isArrow) return false;
-    if (d.type === 'wpn') return true;
-    if (d.type === 'arm') return true;
-    return d.type === 'acc' && ['amulet','belt','ring'].includes(d.slot);
+    return !!(d && d.sherineRemain);
 }
 function closeSherineRerollPanel(){let p=document.getElementById('sherine-reroll-panel');if(p)p.remove();}
 window.openSherineReroll=function(potionUid){
@@ -279,10 +263,10 @@ window.openSherineReroll=function(potionUid){
     const rows=[];
     Object.keys(player.eq||{}).forEach(slot=>{const it=player.eq[slot],d=it&&DB.items[it.id];if(it&&sherinePotionEligible(d))rows.push({ref:'eq:'+slot,it,d,where:'已裝備'});});
     (player.inv||[]).forEach(it=>{const d=it&&DB.items[it.id];if(it&&it.uid!==potionUid&&it.cnt>0&&sherinePotionEligible(d))rows.push({ref:'inv:'+it.uid,it,d,where:'背包'});});
-    if(!rows.length){logSys('背包與裝備欄沒有可使用席琳洗鍊藥水的裝備。');return;}
+    if(!rows.length){logSys('背包與裝備欄沒有可洗鍊的席琳遺骸。');return;}
     if(typeof closeModal==='function')closeModal();closeSherineRerollPanel();
     const p=document.createElement('div');p.id='sherine-reroll-panel';p.style.cssText='position:fixed;inset:0;z-index:13000;background:#000c;display:flex;align-items:center;justify-content:center;padding:18px';
-    p.innerHTML=`<div style="width:min(720px,96vw);max-height:88vh;overflow:auto;background:#111827;border:2px solid #10b981;border-radius:14px;padding:18px;color:#e5e7eb;box-shadow:0 20px 70px #000"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px"><div><b style="font-size:24px;color:#6ee7b7">🧪 席琳洗鍊藥水</b><div style="color:#cbd5e1;margin-top:5px">選擇一件裝備，隨機洗出 12 種席琳套裝效果之一。</div></div><button onclick="closeSherineRerollPanel()" style="padding:8px 13px">✕</button></div><div style="display:grid;gap:8px">${rows.map(r=>`<button onclick="applySherineReroll('${potionUid}','${r.ref}')" style="display:flex;justify-content:space-between;align-items:center;text-align:left;padding:12px;border:1px solid #475569;background:#1e293b;border-radius:9px;color:#fff"><span><b>${(r.it.en||0)>0?'+'+(r.it.en||0)+' ':''}${r.d.n}</b><small style="display:block;color:#94a3b8;margin-top:3px">${r.where}${r.it.cnt>1?'・數量 '+r.it.cnt:''}</small></span><span style="color:#6ee7b7">${r.it.seteff?'目前：'+r.it.seteff:'尚無效果'}</span></button>`).join('')}</div><div style="margin-top:13px;color:#fbbf24;font-size:13px">選擇後會再次確認；確認洗鍊才會消耗 1 瓶藥水。已有的效果也能重洗，且不會連續洗到相同效果。</div></div>`;document.body.appendChild(p);
+    p.innerHTML=`<div style="width:min(720px,96vw);max-height:88vh;overflow:auto;background:#111827;border:2px solid #10b981;border-radius:14px;padding:18px;color:#e5e7eb;box-shadow:0 20px 70px #000"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px"><div><b style="font-size:24px;color:#6ee7b7">🧪 席琳洗鍊藥水</b><div style="color:#cbd5e1;margin-top:5px">選擇一件席琳遺骸，隨機重洗 12 種套裝效果之一。</div></div><button onclick="closeSherineRerollPanel()" style="padding:8px 13px">✕</button></div><div style="display:grid;gap:8px">${rows.map(r=>`<button onclick="applySherineReroll('${potionUid}','${r.ref}')" style="display:flex;justify-content:space-between;align-items:center;text-align:left;padding:12px;border:1px solid #475569;background:#1e293b;border-radius:9px;color:#fff"><span><b>${r.d.n}</b><small style="display:block;color:#94a3b8;margin-top:3px">${r.where}${r.it.cnt>1?'・數量 '+r.it.cnt:''}</small></span><span style="color:#6ee7b7">${r.it.seteff?'目前：'+r.it.seteff:'尚無效果'}</span></button>`).join('')}</div></div>`;document.body.appendChild(p);
 };
 window.applySherineReroll=function(potionUid,targetRef){
     const potion=player.inv.find(i=>i.uid===potionUid&&i.id==='potion_sherine_reroll'&&i.cnt>0);if(!potion)return;

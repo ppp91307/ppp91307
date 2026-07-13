@@ -1293,7 +1293,7 @@ function renderSherinePray(div) {
             <div class="text-slate-300 text-sm leading-relaxed">席琳：旅人啊……是否願意凝視這個世界的另一面？（需等級 40 以上，可自由開啟/關閉；兩種世界互斥）</div>
             <div class="bg-slate-800/60 border ${on ? 'border-red-700' : 'border-slate-600'} rounded p-3 text-sm leading-relaxed">
                 <div class="font-bold mb-1 ${on ? 'c-sherine' : 'text-slate-200'}">席琳的世界：目前 ${on ? '<span class="text-red-300">開啟</span>' : '<span class="text-slate-400">關閉</span>'}</div>
-                <div class="text-slate-200 text-xs">怪物 HP×3、傷害×2、經驗/金錢×5，掉落×3，可能出現<span class="c-sherine font-bold">珍稀套裝裝備</span>與<span class="c-sherine font-bold">席琳結晶</span>。</div>
+                <div class="text-slate-200 text-xs">怪物 HP×3、傷害×2、經驗/金錢×5，掉落×3，並依怪物等級掉落<span class="c-sherine font-bold">席琳結晶</span>；結晶可向伊奧兌換遺骸。</div>
             </div>
             <button class="btn py-3 text-base font-bold ${!lvOk ? 'bg-slate-600 border-slate-500 opacity-60 cursor-not-allowed' : (on ? 'bg-slate-700 hover:bg-slate-600 border-slate-500' : 'bg-red-800 hover:bg-red-700 border-red-600')}"
                 ${!lvOk ? 'disabled' : ''} onclick="toggleSherineWorld()">${!lvOk ? '等級不足（需 Lv40）' : (on ? '🙏 祈禱：關閉席琳的世界' : '🙏 祈禱：開啟席琳的世界')}</button>
@@ -1304,6 +1304,62 @@ function renderSherinePray(div) {
             <button class="btn py-3 text-base font-bold ${!lvOk ? 'bg-slate-600 border-slate-500 opacity-60 cursor-not-allowed' : (mad ? 'bg-slate-700 hover:bg-slate-600 border-slate-500' : 'bg-rose-900 hover:bg-rose-800 border-rose-600')}"
                 ${!lvOk ? 'disabled' : ''} onclick="toggleSherineMad()">${!lvOk ? '等級不足（需 Lv40）' : (mad ? '🙏 祈禱：關閉瘋狂的席琳世界' : '🔥 祈禱：開啟瘋狂的席琳世界')}</button>
         </div>`;
+}
+
+// ===== 🦴 席琳遺骸：伊奧兌換／菈克希絲拆分 =====
+function sherineCrystalCount() {
+    if (typeof questCountId === 'function') return questCountId('sherine_crystal');
+    return (player.inv || []).filter(i => i.id === 'sherine_crystal').reduce((n,i)=>n+(i.cnt||1),0);
+}
+function consumeSherineCrystal() {
+    if (typeof questConsumeId === 'function') { questConsumeId('sherine_crystal', 1); return true; }
+    let i=(player.inv||[]).find(x=>x.id==='sherine_crystal'&&(x.cnt||0)>0); if(!i)return false;
+    i.cnt--; if(i.cnt<=0) player.inv=player.inv.filter(x=>x!==i); return true;
+}
+function gainSherineRemain(def, effect, count) {
+    count=Math.max(1,count||1); effect=(effect||SHERINE_EFFECTS[0]).slice(0,2);
+    let probe={id:def.id,en:0,bless:false,anc:false,attr:false,seteff:effect};
+    let old=(player.inv||[]).find(i=>sameItemSig(i,probe)&&!i.lock);
+    if(old) old.cnt=(old.cnt||1)+count;
+    else player.inv.push({id:def.id,uid:uid(),cnt:count,en:0,bless:false,anc:false,attr:false,seteff:effect,lock:false,junk:false});
+}
+function exchangeSherineRemain(slotKey) {
+    let def=SHERINE_REMAIN_SLOTS.find(x=>x.key===slotKey); if(!def)return;
+    if(sherineCrystalCount()<1){logSys('<span class="text-red-400">需要席琳結晶 ×1。</span>');return;}
+    if(!consumeSherineCrystal())return;
+    let effect=SHERINE_EFFECTS[Math.floor(Math.random()*SHERINE_EFFECTS.length)];
+    gainSherineRemain(def,effect,1);
+    logSys(`<span class="c-sherine font-bold">伊奧完成兌換：${effect}${DB.items[def.id].n}。</span>`);
+    calcStats();renderTabs(true);updateUI();saveGame();
+    let el=document.getElementById('interaction-content');if(el)renderSherineIao(el);
+}
+function renderSherineIao(div) {
+    div.innerHTML=`<div class="p-2"><div class="text-emerald-300 font-bold text-lg mb-1">🦴 指定部位遺骸兌換</div><div class="text-slate-300 text-sm mb-3">席琳結晶 ×1 可換指定部位遺骸，套裝詞綴從 12 組中隨機產生。持有結晶：<b class="text-yellow-300">${sherineCrystalCount()}</b></div><div class="grid grid-cols-2 gap-2">${SHERINE_REMAIN_SLOTS.map(x=>`<button class="btn py-3" onclick="exchangeSherineRemain('${x.key}')">${x.n}<small class="block text-slate-400">結晶 ×1</small></button>`).join('')}</div></div>`;
+}
+function legacySherineRemainDef(d) {
+    let map={wpn:'sherine_fang',helm:'sherine_eye',armor:'sherine_flesh',tshirt:'sherine_flesh',shin:'sherine_bone',gloves:'sherine_claw',boots:'sherine_bone',cloak:'sherine_scale',shield:'sherine_heart',belt:'sherine_blood',amulet:'sherine_blood',ring:'sherine_claw',ear:'sherine_eye'};
+    let key=map[d&&d.type==='wpn'?'wpn':(d&&d.slot)]||'sherine_heart';
+    return SHERINE_REMAIN_SLOTS.find(x=>x.key===key)||SHERINE_REMAIN_SLOTS[0];
+}
+function legacySherineRows() {
+    let rows=[];
+    Object.keys(player.eq||{}).forEach(k=>{let it=player.eq[k],d=it&&DB.items[it.id];if(it&&it.seteff&&d&&!d.sherineRemain)rows.push({ref:'eq:'+k,it,d,where:'已裝備'});});
+    (player.inv||[]).forEach(it=>{let d=it&&DB.items[it.id];if(it&&it.seteff&&d&&!d.sherineRemain)rows.push({ref:'inv:'+it.uid,it,d,where:'背包'});});
+    return rows;
+}
+function splitLegacySherine(ref, all) {
+    let rows=legacySherineRows(); if(!rows.length){logSys('目前沒有可拆分的舊席琳詞綴。');return;}
+    let targets=all?rows:rows.filter(r=>r.ref===ref); if(!targets.length)return;
+    let total=0;
+    targets.forEach(r=>{let cnt=r.where==='背包'?Math.max(1,r.it.cnt||1):1;let effect=r.it.seteff.slice(0,2);r.it.seteff=false;gainSherineRemain(legacySherineRemainDef(r.d),effect,cnt);total+=cnt;});
+    if(typeof consolidateInventory==='function')consolidateInventory();
+    logSys(`<span class="c-sherine font-bold">菈克希絲取下 ${total} 個舊席琳詞綴並轉化為遺骸；原裝備與其他詞綴全部保留。</span>`);
+    calcStats();renderTabs(true);updateUI();saveGame();
+    let el=document.getElementById('interaction-content');if(el)renderSherineLachesis(el);
+}
+function renderSherineLachesis(div) {
+    let rows=legacySherineRows();
+    div.innerHTML=`<div class="p-2"><div class="text-fuchsia-300 font-bold text-lg">🕯️ 舊席琳詞綴拆分</div><div class="text-slate-300 text-sm my-2">免費取下身上或背包裝備的舊席琳詞綴。裝備、強化、元素附魔與洗鍊能力完全保留；舊詞綴未拆前只顯示、不計套裝件數。</div>${rows.length?`<button class="btn w-full py-3 mb-3 bg-fuchsia-900 border-fuchsia-500" onclick="splitLegacySherine('',true)">全部拆分（${rows.reduce((n,r)=>n+(r.where==='背包'?(r.it.cnt||1):1),0)} 件）</button><div class="space-y-2">${rows.map(r=>`<div class="flex items-center justify-between gap-2 bg-slate-800 border border-slate-600 rounded p-2"><span><b>${getItemFullName(r.it)}</b><small class="block text-slate-400">${r.where}${(r.it.cnt||1)>1?'・數量 '+r.it.cnt:''} → ${legacySherineRemainDef(r.d).n}</small></span><button class="btn" onclick="splitLegacySherine('${r.ref}',false)">拆分</button></div>`).join('')}</div>`:'<div class="text-slate-400 border border-slate-700 rounded p-4">目前沒有舊席琳詞綴可拆分。</div>'}</div>`;
 }
 
 // ===== 🏅 威頓村 漢：職業精通任務 =====
@@ -1615,6 +1671,10 @@ function interactNPC(npcId, townId) {
         renderIsmaelExchange(contentDiv);
     } else if (npc.id === 'npc_sherine') {
         renderSherinePray(contentDiv);
+    } else if (npc.id === 'npc_sherine_iao') {
+        renderSherineIao(contentDiv);
+    } else if (npc.id === 'npc_sherine_lachesis') {
+        renderSherineLachesis(contentDiv);
     } else if (npc.id === 'npc_han') {
         renderHanNPC(contentDiv);
     } else if (npc.id === 'npc_kent_guard') {

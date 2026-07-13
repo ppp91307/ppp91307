@@ -399,7 +399,8 @@ d.mr += (baseMr + bonusMr);
     let _shSets = {};
     for (let k in p.eq) {
         let e = p.eq[k];
-        if (e && e.seteff) { let g = e.seteff.slice(0, 2); _shSets[g] = (_shSets[g] || 0) + 1; }   // 計件＝帶該套裝名的「部位數」（每個裝備欄各算一件）
+        let ed = e && DB.items[e.id];
+        if (e && e.seteff && ed && ed.sherineRemain) { let g = e.seteff.slice(0, 2); _shSets[g] = (_shSets[g] || 0) + 1; }
     }
     let _shN = (g) => (_shSets[g] || 0);
     p._sherineSetCnt = {};   // 🔮 各組件數（部位數）：供狀態面板（n/5 徽章）與裝備欄底色判定使用
