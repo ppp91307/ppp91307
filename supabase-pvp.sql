@@ -52,11 +52,11 @@ alter table public.pvp_matches enable row level security;
 create or replace function public.pvp_safe_snapshot(p jsonb) returns jsonb
 language sql immutable set search_path=public as $$
  select jsonb_build_object(
-  'lv',greatest(1,least(100,coalesce((p->>'lv')::integer,1))),
+  'lv',greatest(1,least(100,round(coalesce((p->>'lv')::numeric,1))::integer)),
   'class',left(coalesce(nullif(p->>'class',''),'冒險者'),20),
-  'max_hp',greatest(100,least(1000000,coalesce((p->>'max_hp')::integer,100))),
-  'atk',greatest(10,least(100000,coalesce((p->>'atk')::integer,10))),
-  'def',greatest(0,least(100000,coalesce((p->>'def')::integer,0))),
+  'max_hp',greatest(100,least(1000000,round(coalesce((p->>'max_hp')::numeric,100))::integer)),
+  'atk',greatest(10,least(100000,round(coalesce((p->>'atk')::numeric,10))::integer)),
+  'def',greatest(0,least(100000,round(coalesce((p->>'def')::numeric,0))::integer)),
   'crit',greatest(0,least(50,coalesce((p->>'crit')::numeric,0))),
   'speed',greatest(0.6,least(2.5,coalesce((p->>'speed')::numeric,1)))
  );
