@@ -1603,7 +1603,8 @@ function logCombat(msg, type="player", src=null) {
             if(ci.kind==='damage') key=_src+'|'+ci.key;
             if(ci.kind==='kill') key=_src+'|kills';
             old=_combatCompactRows.get(key);
-            if(old&&old.el&&old.el.isConnected&&now-old.at<=COMBAT_COMPACT_WINDOW){
+            // 使用固定 8 秒批次，不因新訊息延長期限；到期後自然在最下方建立新摘要。
+            if(old&&old.el&&old.el.isConnected&&now-old.startedAt<=COMBAT_COMPACT_WINDOW){
                 old.at=now;old.count++;old.total+=ci.dmg;old.latest=ci.latest||old.latest;
                 if(type==='player-crit')old.crits++;
                 old.el.innerHTML=ci.render(old);
@@ -1618,7 +1619,8 @@ function logCombat(msg, type="player", src=null) {
             let node=el.lastElementChild,key=type+'|'+_src+'|'+ci.key;
             if(ci.kind==='damage')key=_src+'|'+ci.key;
             if(ci.kind==='kill')key=_src+'|kills';
-            _combatCompactRows.set(key,{el:node,at:Date.now(),count:1,total:ci.dmg,first:msg,latest:ci.latest||'',crits:type==='player-crit'?1:0});
+            let createdAt=Date.now();
+            _combatCompactRows.set(key,{el:node,at:createdAt,startedAt:createdAt,count:1,total:ci.dmg,first:msg,latest:ci.latest||'',crits:type==='player-crit'?1:0});
             if(_combatCompactRows.size>200)_combatCompactRows.delete(_combatCompactRows.keys().next().value);
         }
     }
