@@ -1030,8 +1030,10 @@ function renderKristaExchange(el) {
         </div>`;
 }
 // ===== 碧恩：用賦予祝福卷軸為裝備隨機改變一個詞綴（屬性/遠古系/祝福，平均抽一） =====
-function _bianRollOnce(item) {
-    let pick = Math.floor(lootRng('bianpick') * 3);
+function _bianRollOnce(item, targetKind) {
+    // 有指定目標時只重洗該欄，避免單洗一項卻把另外兩項洗掉。
+    // 未指定時維持原本「三類隨機抽一類」的普通祝福行為。
+    let pick = targetKind === 'bless' ? 2 : (targetKind === 'anc' ? 1 : (targetKind === 'attr' ? 0 : Math.floor(lootRng('bianpick') * 3)));
     let msg = '';
     if (pick === 2) {
         let rolled = (lootRng('bianbless') < 0.5) ? true : 'cursed';
@@ -1097,10 +1099,15 @@ function doBianBless(slotKey, attrTarget, ancTarget, blessTarget) {
         return;
     }
     let attempts = 0, msg = '', success = false;
+    // 已符合的欄位先鎖定；後續只輪流重洗尚未符合的選項。
+    let pendingTargets = targetKeys.filter(key => !_bianTargetMatched(item, key));
     do {
         if (!_bianConsumeScroll(scrollId)) break;
-        msg = _bianRollOnce(item);
+        let activeTarget = pendingTargets.length ? pendingTargets[attempts % pendingTargets.length] : '';
+        let activeKind = activeTarget ? activeTarget.split(':')[0] : '';
+        msg = _bianRollOnce(item, activeKind);
         attempts++;
+        if (targetKeys.length) pendingTargets = pendingTargets.filter(key => !_bianTargetMatched(item, key));
         success = !targetKeys.length || _bianTargetsMatched(item, targetKeys);
     } while (targetKeys.length && !success && attempts < 100000);
     if (!attempts) { logSys(`<span class="text-red-400">缺少 ${scrollNm}。</span>`); return; }

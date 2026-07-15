@@ -444,6 +444,8 @@
     };
 
     window.openEquipmentWindow = function (targetPage) {
+        window._equipmentDisplayMode = 'grid';
+        try { localStorage.setItem('equipmentDisplayMode', 'grid'); } catch (_) {}
         window.setEquipmentPanelEmbedded(true, targetPage);
     };
 
@@ -472,6 +474,10 @@
             syncEquipmentBackground();
         }
         el('equipment-window-close').onclick = closeEquipmentWindow;
+        const textToggle = el('equipment-view-text');
+        if (textToggle) textToggle.onclick = function () {
+            if (typeof setEquipmentDisplayMode === 'function') setEquipmentDisplayMode('text');
+        };
         el('equipment-side-close').onclick = closeEquipmentSidePanel;
         el('equipment-window-next').onclick = function () { page = 1; refreshEquipmentWindow(); };
         el('equipment-window-prev').onclick = function () { page = 0; refreshEquipmentWindow(); };
