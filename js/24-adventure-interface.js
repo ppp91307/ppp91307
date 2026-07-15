@@ -92,6 +92,39 @@
         put('dt-resnone', Math.round(d.resNone || 0));
     }
 
+    const BAG_PANEL_IDS = ['tab-weapons', 'tab-armors', 'tab-items'];
+
+    function captureBagScrolls() {
+        const saved = {};
+        BAG_PANEL_IDS.forEach(function (id) {
+            const panel = document.getElementById(id);
+            if (!panel) return;
+            const viewport = panel.querySelector(':scope > .classic-inventory-shell > .classic-inventory-viewport');
+            saved[id] = {
+                panelTop: panel.scrollTop || 0,
+                gridTop: viewport ? (viewport.scrollTop || 0) : 0
+            };
+        });
+        return saved;
+    }
+
+    function restoreBagScrolls(saved) {
+        if (!saved) return;
+        const apply = function () {
+            BAG_PANEL_IDS.forEach(function (id) {
+                const pos = saved[id];
+                const panel = document.getElementById(id);
+                if (!pos || !panel) return;
+                panel.scrollTop = pos.panelTop || 0;
+                const viewport = panel.querySelector(':scope > .classic-inventory-shell > .classic-inventory-viewport');
+                if (viewport) viewport.scrollTop = pos.gridTop || 0;
+            });
+        };
+        // 先立即恢復，再等瀏覽器完成格子高度計算後補套一次。
+        apply();
+        window.requestAnimationFrame(apply);
+    }
+
     function bagMode() {
         try { return localStorage.getItem('lineage-bag-view') === 'text' ? 'text' : 'grid'; } catch (e) { return 'grid'; }
     }
@@ -101,9 +134,10 @@
         decorateBagPanels(true);
     }
 
-    function decorateBagPanels(force) {
+    function decorateBagPanels(force, preservedScrolls) {
+        const savedScrolls = preservedScrolls || captureBagScrolls();
         const mode = bagMode();
-        ['tab-weapons', 'tab-armors', 'tab-items'].forEach(function (id) {
+        BAG_PANEL_IDS.forEach(function (id) {
             const panel = document.getElementById(id);
             if (!panel) return;
             const hasShell = !!panel.querySelector(':scope > .classic-inventory-shell');
@@ -157,6 +191,7 @@
             panel.appendChild(toggle);
             panel.dataset.bagDecorated = mode;
         });
+        restoreBagScrolls(savedScrolls);
     }
 
     function sceneUrl(name) {
@@ -319,8 +354,9 @@
         const originalTabs = window.renderTabs;
         if (typeof originalTabs === 'function' && !originalTabs.__bagViewPort) {
             const wrappedTabs = function () {
+                const bagScrolls = captureBagScrolls();
                 const out = originalTabs.apply(this, arguments);
-                decorateBagPanels(false);
+                decorateBagPanels(false, bagScrolls);
                 return out;
             };
             wrappedTabs.__bagViewPort = true;
