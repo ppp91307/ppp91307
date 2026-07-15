@@ -29,8 +29,10 @@
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
     <link rel="stylesheet" href="css/style.css?v=20260712-chat-focus1">
+    <link rel="stylesheet" href="css/interface-source.css?v=20260715-interface-port2">
     <link rel="stylesheet" href="css/floating-ui.css?v=cef1e683d5">
     <link rel="stylesheet" href="css/tailwind-built.css?v=c0926cfba4"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
+    <link rel="stylesheet" href="css/interface-preserve.css?v=20260715-interface-port2">
     <style>
       .four-tabs button[onclick="fourShow('element')"]{display:none!important}
       .four-craft-card{background:#0f172a;border:1px solid #475569;border-radius:10px;padding:14px;margin:10px 0;clear:both}
@@ -575,7 +577,7 @@ Object.assign(DB.items.tsh_heroic,      {img:'assets/items/shirts/tsh_heroic.png
 <script src="js/07-skills-cast.js?v=20260712-chocolate-auto1"></script>
 <script src="js/08-items-equip.js?v=20260713-sherine-remains1"></script>
 <script src="js/09-vfx-render.js?v=20260712-ui-polish1"></script>
-<script src="js/10-ui-tabs.js?v=20260713-shin-slot1"></script>
+<script src="js/10-ui-tabs.js?v=20260715-bag-toggle1"></script>
 <script src="js/11-world-map.js?v=20260713-sherine-equip17"></script>
 <script src="js/12-npc-quests.js?v=20260713-sherine-remains1"></script>
 <script src="js/13-shop-save.js?v=20260713-sherine-equip17"></script>
@@ -587,6 +589,7 @@ Object.assign(DB.items.tsh_heroic,      {img:'assets/items/shirts/tsh_heroic.png
 <script src="js/19-equipment-window.js?v=20260713-shin-slot1"></script>
 <script src="js/20-warehouse-window.js?v=6b884f76fa"></script>
 <script src="js/21-relic-book.js?v=bdeff66680"></script>
+<script src="js/24-adventure-interface.js?v=20260715-interface-port4"></script>
 <!-- 離線掛機(核心模組,2026-07-10 由外掛 afk-offline.js 移入;不用數字檔名,避免與日後手動合併原版的新編號檔衝突) -->
 <script src="js/offline.js?v=20260712-chocolate-auto1"></script>
 <!-- 手機版介面外掛(可獨立維護;原作者更新後重新加回此行即可) -->

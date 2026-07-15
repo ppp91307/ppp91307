@@ -364,6 +364,7 @@ player.inv.forEach(i => {
     let el = document.createElement('div'); 
     // className 這裡移除了 isDisabled 相關的判定，讓所有項目都可以互動
     el.className = `list-item text-base ${itemBg} rounded mb-1 ${i.lock ? 'border-red-900 border-2' : ''}`;
+    el.dataset.invUid = i.uid;
     
     // 判斷如果背包裡的物品是祝福的，套用螢光特效
     let imgUrl = getIconUrl(d);
