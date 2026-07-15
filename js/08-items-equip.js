@@ -2,10 +2,14 @@ let _gainLogLast = { key: '', count: 0, el: null, base: '', at: 0 };
 function logGainItemCompact(itemInfo) {
     let d = DB.items[itemInfo.id];
     if (!d) return;
-    let key = (typeof itemSig === 'function') ? itemSig(itemInfo) : JSON.stringify({ id: itemInfo.id, en: itemInfo.en, bless: itemInfo.bless, anc: itemInfo.anc, attr: itemInfo.attr, seteff: itemInfo.seteff });
+    let lootSource = (typeof _lootMonsterName === 'string' && _lootMonsterName) ? _lootMonsterName : '';
+    let itemKey = (typeof itemSig === 'function') ? itemSig(itemInfo) : JSON.stringify({ id: itemInfo.id, en: itemInfo.en, bless: itemInfo.bless, anc: itemInfo.anc, attr: itemInfo.attr, seteff: itemInfo.seteff });
+    let key = lootSource + '|' + itemKey;
     let cnt = Math.max(1, Number(itemInfo.cnt) || 1);
     let name = getItemFullName(itemInfo);
-    let base = `獲得物品: <span class="font-bold">${name}</span>`;
+    let base = lootSource
+        ? `<span class="text-amber-300 font-bold">${lootSource}</span> 掉落：<span class="font-bold">${name}</span>`
+        : `獲得物品: <span class="font-bold">${name}</span>`;
     let sys = document.getElementById('sys-log');
     let now = Date.now();
     if (sys && _gainLogLast.key === key && _gainLogLast.el && _gainLogLast.el.parentNode === sys && sys.lastElementChild === _gainLogLast.el && now - _gainLogLast.at < 12000) {

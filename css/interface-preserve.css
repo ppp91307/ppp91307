@@ -61,18 +61,21 @@
 #tab-armors.bag-grid-view,
 #tab-items.bag-grid-view {
     padding: 0 !important;
-    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
     align-items: center !important;
     background: #08090d !important;
+    scrollbar-gutter: stable;
 }
 
 #tab-weapons.bag-grid-view .classic-inventory-shell,
 #tab-armors.bag-grid-view .classic-inventory-shell,
 #tab-items.bag-grid-view .classic-inventory-shell {
     position: relative !important;
-    flex: 1 1 auto !important;
-    width: min(100%, 430px) !important;
-    max-width: 430px !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 400px !important;
+    height: auto !important;
     min-height: 0 !important;
     aspect-ratio: 193 / 282 !important;
     overflow: hidden !important;
