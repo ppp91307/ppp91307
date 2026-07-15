@@ -226,6 +226,88 @@
 }
 .bian-target-select:focus { outline: 2px solid #a855f7; outline-offset: 1px; }
 .bian-bless-actions { flex-wrap: wrap; justify-content: flex-end; }
+.bian-target-group { display: grid; grid-template-columns: repeat(3, minmax(118px, 1fr)); gap: 4px; }
 @media (max-width: 760px) {
     .bian-target-select { width: 112px; }
+    .bian-target-group { grid-template-columns: 1fr; }
+}
+
+/* 參照 idle-lineage-class-main：直式角色裝備紙娃娃與正確欄位方向 */
+.equipment-window-frame {
+    width: min(366px, 92vw, calc(94vh * 183 / 408)) !important;
+    aspect-ratio: 183 / 408 !important;
+}
+.equipment-window-drag { left: 4% !important; top: 1% !important; width: 82% !important; height: 7% !important; }
+.equipment-window-prev { left: 9% !important; top: 91% !important; width: 24% !important; height: 6% !important; }
+.equipment-window-next { left: 58% !important; top: 91% !important; width: 24% !important; height: 6% !important; }
+.equipment-window-stats,
+.equipment-morph-snapshot { display: none !important; }
+.equipment-visual-slot { padding: .8% !important; }
+.equipment-visual-slot img { width: 88% !important; height: 88% !important; }
+.equipment-window-weight { display: none; }
+
+.equipment-window.equipment-window-embedded {
+    position: fixed !important;
+    inset: auto;
+    z-index: 20;
+    overflow: hidden;
+    pointer-events: none;
+    background: #101218;
+}
+.equipment-window-embedded .equipment-window-frame {
+    position: absolute !important;
+    pointer-events: auto;
+    filter: none !important;
+    touch-action: auto;
+}
+.equipment-window-embedded .equipment-window-drag,
+.equipment-window-embedded .equipment-window-close,
+.equipment-window-embedded .equipment-side-panel,
+.equipment-window-embedded .equipment-window-page-label,
+.equipment-window-embedded .equipment-slot-empty-label { display: none !important; }
+.equipment-window-embedded .equipment-window-prev,
+.equipment-window-embedded .equipment-window-next {
+    top: 93.14% !important;
+    height: 4.17% !important;
+    color: transparent !important;
+    border: 0 !important;
+    border-radius: 1px !important;
+    background: transparent !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+}
+.equipment-window-embedded .equipment-window-prev { left: 8.20% !important; width: 20.77% !important; }
+.equipment-window-embedded .equipment-window-next { left: 28.96% !important; width: 20.22% !important; }
+.equipment-window-embedded .equipment-window-arrow.active::after {
+    content: '';
+    position: absolute;
+    inset: 18% 12%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(255,224,157,.34), rgba(255,196,86,.16) 48%, transparent 100%);
+    pointer-events: none;
+}
+.equipment-window-embedded .equipment-window-weight {
+    position: absolute;
+    z-index: 7;
+    left: 52%;
+    top: 93.14%;
+    width: 39%;
+    height: 4.17%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f0ebe2;
+    font: 600 clamp(8px, 1vw, 12px)/1 "Microsoft JhengHei", Arial, sans-serif;
+    text-shadow: 0 1px 2px #000;
+    white-space: nowrap;
+    pointer-events: none;
+}
+.equipment-window-embedded .equipment-window-weight[data-load-tier="1"] { color: #e4c15f; }
+.equipment-window-embedded .equipment-window-weight[data-load-tier="2"],
+.equipment-window-embedded .equipment-window-weight[data-load-tier="3"] { color: #e06b63; }
+@media (max-width: 768px) {
+    #tab-content-panel.equipment-panel-host {
+        height: var(--equipment-panel-height) !important;
+        min-height: var(--equipment-panel-height) !important;
+    }
 }

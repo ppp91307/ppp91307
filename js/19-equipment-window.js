@@ -3,42 +3,44 @@
     const PAGE_NAMES = ['一般裝備', '席琳遺骸'];
     const PAGE_SLOTS = [
         [
-            { k: 'ear1',   n: '耳環 I',  x: 39.7, y: 17.6, w: 10.8, h: 9.1 },
-            { k: 'helm',   n: '頭盔',    x: 63.6, y: 17.6, w: 11.6, h: 9.1 },
-            { k: 'ear2',   n: '耳環 II', x: 83.0, y: 17.6, w: 11.0, h: 9.1 },
-            { k: 'amulet', n: '項鍊',    x: 63.6, y: 27.0, w: 11.4, h: 9.2 },
-            { k: 'tshirt', n: 'T恤',     x: 39.7, y: 35.4, w: 10.8, h: 9.4 },
-            { k: 'armor',  n: '盔甲',    x: 63.6, y: 37.0, w: 11.5, h: 9.4 },
-            { k: 'cloak',  n: '斗篷',    x: 83.0, y: 35.4, w: 11.0, h: 9.4 },
-            { k: 'wpn',    n: '武器',    x: 39.7, y: 47.0, w: 10.8, h: 9.5 },
-            { k: 'belt',   n: '腰帶',    x: 63.6, y: 48.0, w: 11.5, h: 9.2 },
-            { k: 'shield', n: '副手',    x: 83.0, y: 47.0, w: 11.0, h: 9.5 },
-            { k: 'ring1',  n: '戒指 I',  x: 39.7, y: 59.0, w: 10.8, h: 9.2 },
-            { k: 'shin',   n: '脛甲',    x: 63.6, y: 59.0, w: 11.5, h: 9.2, visualFrame: true },
-            { k: 'ring2',  n: '戒指 II', x: 83.0, y: 59.0, w: 11.0, h: 9.2 },
-            { k: 'ring3',  n: '戒指 III',x: 39.7, y: 70.5, w: 10.8, h: 9.2 },
-            { k: 'gloves', n: '手套',    x: 63.6, y: 70.5, w: 11.5, h: 9.2 },
-            { k: 'ring4',  n: '戒指 IV', x: 83.0, y: 70.5, w: 11.0, h: 9.2 },
-            { k: 'boots',  n: '長靴',    x: 63.6, y: 82.0, w: 11.8, h: 10.0 }
+            { k: 'helm',    n: '頭盔',     x: 50.0, y: 15.81, w: 19.67, h: 8.82 },
+            { k: 'ear1',    n: '耳環 I',   x: 19.4, y: 18.01, w: 19.67, h: 8.82 },
+            { k: 'ear2',    n: '耳環 II',  x: 80.1, y: 18.01, w: 19.67, h: 8.82 },
+            { k: 'amulet',  n: '項鍊',     x: 50.0, y: 33.46, w: 19.67, h: 8.82 },
+            { k: 'gloves',  n: '手套',     x: 19.4, y: 31.50, w: 19.67, h: 8.82 },
+            { k: 'cloak',   n: '斗篷',     x: 80.1, y: 31.50, w: 19.67, h: 8.82 },
+            { k: 'tshirt',  n: 'T恤',      x: 50.0, y: 42.77, w: 19.67, h: 8.82 },
+            { k: 'wpn',     n: '武器',     x: 19.4, y: 44.98, w: 19.67, h: 8.82 },
+            { k: 'shield', alt: 'offwpn', n: '副手', x: 80.1, y: 44.98, w: 19.67, h: 8.82 },
+            { k: 'armor',   n: '盔甲',     x: 50.0, y: 52.08, w: 19.67, h: 8.82 },
+            { k: 'ring1',   n: '戒指 I',   x: 19.4, y: 58.46, w: 19.67, h: 8.82 },
+            { k: 'ring2',   n: '戒指 II',  x: 80.1, y: 58.46, w: 19.67, h: 8.82 },
+            { k: 'belt',    n: '腰帶',     x: 50.0, y: 63.36, w: 19.67, h: 8.82 },
+            { k: 'ring3',   n: '戒指 III', x: 19.4, y: 67.77, w: 19.67, h: 8.82 },
+            { k: 'ring4',   n: '戒指 IV',  x: 80.1, y: 67.77, w: 19.67, h: 8.82 },
+            { k: 'shin',    n: '脛甲',     x: 50.0, y: 72.67, w: 19.67, h: 8.82 },
+            { k: 'boots',   n: '長靴',     x: 50.0, y: 81.99, w: 19.67, h: 8.82 },
+            { k: 'doll',    n: '魔法娃娃', x: 19.4, y: 80.76, w: 19.67, h: 8.82 },
+            { k: 'arrow',   n: '箭矢',     x: 80.1, y: 80.76, w: 19.67, h: 8.82 }
         ],
         [
-            { k: 'sherine_horn',   n: '耳環 I',  x: 39.7, y: 17.6, w: 10.8, h: 9.1 },
-            { k: 'sherine_eye',    n: '頭盔',    x: 63.6, y: 17.6, w: 11.6, h: 9.1 },
-            { k: 'sherine_wing',   n: '耳環 II', x: 83.0, y: 17.6, w: 11.0, h: 9.1 },
-            { k: 'sherine_shell',  n: '項鍊',    x: 63.6, y: 27.0, w: 11.4, h: 9.2 },
-            { k: 'sherine_flesh',  n: 'T恤',     x: 39.7, y: 35.4, w: 10.8, h: 9.4 },
-            { k: 'sherine_blood',  n: '盔甲',    x: 63.6, y: 37.0, w: 11.5, h: 9.4 },
-            { k: 'sherine_fang',   n: '斗篷',    x: 83.0, y: 35.4, w: 11.0, h: 9.4 },
-            { k: 'sherine_claw',   n: '武器',    x: 39.7, y: 47.0, w: 10.8, h: 9.5 },
-            { k: 'sherine_vein',   n: '腰帶',    x: 63.6, y: 48.0, w: 11.5, h: 9.2 },
-            { k: 'sherine_scale',  n: '副手',    x: 83.0, y: 47.0, w: 11.0, h: 9.5 },
-            { k: 'sherine_tail',   n: '戒指 I',  x: 39.7, y: 59.0, w: 10.8, h: 9.2 },
-            { k: 'sherine_shin',   n: '脛甲',    x: 63.6, y: 59.0, w: 11.5, h: 9.2, visualFrame: true },
-            { k: 'sherine_soul',   n: '戒指 II', x: 83.0, y: 59.0, w: 11.0, h: 9.2 },
-            { k: 'sherine_hide',   n: '戒指 III',x: 39.7, y: 70.5, w: 10.8, h: 9.2 },
-            { k: 'sherine_heart',  n: '手套',    x: 63.6, y: 70.5, w: 11.5, h: 9.2 },
-            { k: 'sherine_marrow', n: '戒指 IV', x: 83.0, y: 70.5, w: 11.0, h: 9.2 },
-            { k: 'sherine_bone',   n: '長靴',    x: 63.6, y: 82.0, w: 11.8, h: 10.0 }
+            { k: 'sherine_eye',    n: '頭盔遺骸',    x: 50.0, y: 15.81, w: 19.67, h: 8.82 },
+            { k: 'sherine_horn',   n: '耳環 I 遺骸', x: 19.4, y: 18.01, w: 19.67, h: 8.82 },
+            { k: 'sherine_wing',   n: '耳環 II 遺骸',x: 80.1, y: 18.01, w: 19.67, h: 8.82 },
+            { k: 'sherine_shell',  n: '項鍊遺骸',    x: 50.0, y: 33.46, w: 19.67, h: 8.82 },
+            { k: 'sherine_heart',  n: '手套遺骸',    x: 19.4, y: 31.50, w: 19.67, h: 8.82 },
+            { k: 'sherine_fang',   n: '斗篷遺骸',    x: 80.1, y: 31.50, w: 19.67, h: 8.82 },
+            { k: 'sherine_flesh',  n: 'T恤遺骸',     x: 50.0, y: 42.77, w: 19.67, h: 8.82 },
+            { k: 'sherine_claw',   n: '武器遺骸',    x: 19.4, y: 44.98, w: 19.67, h: 8.82 },
+            { k: 'sherine_scale',  n: '副手遺骸',    x: 80.1, y: 44.98, w: 19.67, h: 8.82 },
+            { k: 'sherine_blood',  n: '盔甲遺骸',    x: 50.0, y: 52.08, w: 19.67, h: 8.82 },
+            { k: 'sherine_tail',   n: '戒指 I 遺骸', x: 19.4, y: 58.46, w: 19.67, h: 8.82 },
+            { k: 'sherine_soul',   n: '戒指 II 遺骸',x: 80.1, y: 58.46, w: 19.67, h: 8.82 },
+            { k: 'sherine_vein',   n: '腰帶遺骸',    x: 50.0, y: 63.36, w: 19.67, h: 8.82 },
+            { k: 'sherine_hide',   n: '戒指 III 遺骸',x: 19.4, y: 67.77, w: 19.67, h: 8.82 },
+            { k: 'sherine_marrow', n: '戒指 IV 遺骸', x: 80.1, y: 67.77, w: 19.67, h: 8.82 },
+            { k: 'sherine_shin',   n: '脛甲遺骸',    x: 50.0, y: 72.67, w: 19.67, h: 8.82 },
+            { k: 'sherine_bone',   n: '長靴遺骸',    x: 50.0, y: 81.99, w: 19.67, h: 8.82 }
         ]
     ];
 
@@ -131,6 +133,24 @@
     function el(id) { return document.getElementById(id); }
     function signed(n) { n = Number(n) || 0; return n > 0 ? '+' + n : String(n); }
 
+    const EQUIPMENT_TEMPLATE_CLASS = {
+        royal: '王族', knight: '騎士', mage: '法師', elf: '妖精',
+        dark: '黑妖', illusion: '幻術', dragon: '龍騎', warrior: '戰士'
+    };
+    function equipmentTemplateUrl() {
+        const cls = typeof player !== 'undefined' && player ? EQUIPMENT_TEMPLATE_CLASS[player.cls] : '';
+        if (!cls) return 'assets/equipment-window-bg.png';
+        const avatar = String(player.avatar || '');
+        const female = avatar.startsWith('女') || (player.cls === 'royal' && player.bloodPledge === 'esti');
+        return 'public/assets/login/EQ%20UI/' + encodeURIComponent((female ? '女' : '男') + cls + '.png') + '?v=20260715';
+    }
+    function syncEquipmentBackground() {
+        const background = el('equipment-window-frame')?.querySelector('.equipment-window-bg');
+        if (!background) return;
+        const src = equipmentTemplateUrl();
+        if (background.getAttribute('src') !== src) background.src = src;
+    }
+
     function renderStats() {
         if (typeof player === 'undefined' || !player || !player.d) return;
         const d = player.d;
@@ -149,6 +169,13 @@
         el('equipment-window-stats').innerHTML = values.map(([key, value]) =>
             `<span class="equipment-stat equipment-stat-${key}">${value}</span>`
         ).join('');
+        const weight = el('equipment-window-weight');
+        if (weight) {
+            const weightPct = Math.max(0, Math.round(Number(d.weightPct) || 0));
+            const loadTier = Math.max(0, Math.min(3, Number(d.loadTier) || 0));
+            weight.textContent = `負重 ${weightPct} %`;
+            weight.dataset.loadTier = String(loadTier);
+        }
     }
 
     function renderMorphSnapshot() {
@@ -205,7 +232,8 @@
         if (pageLabel) pageLabel.textContent = `${page + 1} / ${PAGE_SLOTS.length}　${PAGE_NAMES[page]}`;
         host.innerHTML = '';
         PAGE_SLOTS[page].forEach(pos => {
-            const item = player.eq[pos.k];
+            const actualKey = pos.alt && player.eq[pos.alt] ? pos.alt : pos.k;
+            const item = player.eq[actualKey];
             const data = item && typeof DB !== 'undefined' && DB.items[item.id];
             const slot = document.createElement('button');
             slot.type = 'button';
@@ -223,7 +251,10 @@
                 img.alt = data.n || pos.k;
                 img.draggable = false;
                 img.onerror = function () { this.style.display = 'none'; };
-                if (typeof isRelic === 'function' && isRelic(data)) img.classList.add('relic-glow');   // 🏺 已裝備遺物：藍光呼吸＋星芒（與背包一致）
+                if (typeof getGlowClass === 'function') {
+                    const glowClass = getGlowClass(item, data);
+                    if (glowClass) img.classList.add(...glowClass.split(/\s+/).filter(Boolean));
+                }
                 slot.appendChild(img);
                 if (item.en) {
                     const badge = document.createElement('span');
@@ -248,7 +279,7 @@
                     clearTimeout(clickTimer);
                     event.preventDefault();
                     event.stopPropagation();
-                    unequipItem(pos.k);
+                    unequipItem(actualKey);
                 };
             } else {
                 slot.title = `${pos.n || pos.k}：尚未裝備`;
@@ -262,8 +293,13 @@
             }
             host.appendChild(slot);
         });
-        el('equipment-window-prev').disabled = page === 0;
-        el('equipment-window-next').disabled = page === PAGE_SLOTS.length - 1;
+        const pageOne = el('equipment-window-prev'), pageTwo = el('equipment-window-next');
+        pageOne.disabled = false;
+        pageTwo.disabled = false;
+        pageOne.classList.toggle('active', page === 0);
+        pageTwo.classList.toggle('active', page === 1);
+        pageOne.setAttribute('aria-pressed', page === 0 ? 'true' : 'false');
+        pageTwo.setAttribute('aria-pressed', page === 1 ? 'true' : 'false');
     }
 
     function plainItemName(item) {
@@ -343,6 +379,30 @@
         const frame = el('equipment-window-frame');
         const win = el('equipment-window');
         if (!frame || !win || win.classList.contains('hidden')) return;
+        if (win.classList.contains('equipment-window-embedded')) {
+            const host = el('tab-content-panel');
+            if (!host) return;
+            let hostRect = host.getBoundingClientRect();
+            const maxFrameWidth = 366;
+            if (innerWidth <= 768) {
+                const mobileFrameWidth = Math.min(hostRect.width, maxFrameWidth);
+                host.style.setProperty('--equipment-panel-height', Math.ceil(mobileFrameWidth * 408 / 183) + 'px');
+                hostRect = host.getBoundingClientRect();
+            }
+            const frameWidth = Math.max(0, Math.min(hostRect.width, maxFrameWidth, hostRect.height * 183 / 408));
+            win.style.left = hostRect.left + 'px';
+            win.style.top = hostRect.top + 'px';
+            win.style.right = 'auto';
+            win.style.bottom = 'auto';
+            win.style.width = hostRect.width + 'px';
+            win.style.height = hostRect.height + 'px';
+            frame.style.left = '50%';
+            frame.style.top = '0';
+            frame.style.setProperty('width', frameWidth + 'px', 'important');
+            frame.style.transform = 'translateX(-50%)';
+            frame.classList.remove('side-open');
+            return;
+        }
         const rect = frame.getBoundingClientRect();
         const side = frame.classList.contains('side-open') ? el('equipment-side-panel') : null;
         const sideWidth = side && !side.classList.contains('hidden') ? side.getBoundingClientRect().width + 8 : 0;
@@ -358,27 +418,39 @@
     window.refreshEquipmentWindow = function () {
         const win = el('equipment-window');
         if (!win || win.classList.contains('hidden')) return;
+        syncEquipmentBackground();
         renderStats();
         renderMorphSnapshot();
         renderSlots();
         renderSidePanel();
     };
 
-    window.openEquipmentWindow = function (targetPage) {
+    window.setEquipmentPanelEmbedded = function (visible, targetPage) {
         const win = el('equipment-window');
         if (!win) return;
         if (Number.isInteger(targetPage)) page = Math.max(0, Math.min(PAGE_SLOTS.length - 1, targetPage));
-        win.classList.remove('hidden');
-        win.setAttribute('aria-hidden', 'false');
+        const host = el('tab-content-panel');
+        if (host) {
+            host.classList.toggle('equipment-panel-host', visible);
+            if (!visible || innerWidth > 768) host.style.removeProperty('--equipment-panel-height');
+        }
+        win.classList.add('equipment-window-embedded');
+        win.classList.toggle('hidden', !visible);
+        win.setAttribute('aria-hidden', visible ? 'false' : 'true');
+        if (!visible) return;
+        closeEquipmentSidePanel();
         refreshEquipmentWindow();
         requestAnimationFrame(fitEquipmentWindowToViewport);
+    };
+
+    window.openEquipmentWindow = function (targetPage) {
+        window.setEquipmentPanelEmbedded(true, targetPage);
     };
 
     window.toggleEquipmentWindow = function () {
         const win = el('equipment-window');
         if (!win) return;
-        if (win.classList.contains('hidden')) openEquipmentWindow();
-        else closeEquipmentWindow();
+        window.setEquipmentPanelEmbedded(win.classList.contains('hidden'));
     };
 
     window.closeEquipmentWindow = function () {
@@ -392,10 +464,17 @@
         const frame = el('equipment-window-frame');
         const handle = el('equipment-window-drag');
         if (!frame || !handle) return;
+        const win = el('equipment-window');
+        if (win) win.classList.add('equipment-window-embedded');
+        const background = frame.querySelector('.equipment-window-bg');
+        if (background) {
+            background.onerror = function () { this.onerror = null; this.src = 'assets/equipment-window-bg.png'; };
+            syncEquipmentBackground();
+        }
         el('equipment-window-close').onclick = closeEquipmentWindow;
         el('equipment-side-close').onclick = closeEquipmentSidePanel;
-        el('equipment-window-next').onclick = function () { if (page < PAGE_SLOTS.length - 1) { page++; refreshEquipmentWindow(); } };
-        el('equipment-window-prev').onclick = function () { if (page > 0) { page--; refreshEquipmentWindow(); } };
+        el('equipment-window-next').onclick = function () { page = 1; refreshEquipmentWindow(); };
+        el('equipment-window-prev').onclick = function () { page = 0; refreshEquipmentWindow(); };
 
         handle.addEventListener('pointerdown', function (event) {
             const rect = frame.getBoundingClientRect();

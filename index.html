@@ -32,7 +32,7 @@
     <link rel="stylesheet" href="css/interface-source.css?v=20260715-interface-port2">
     <link rel="stylesheet" href="css/floating-ui.css?v=cef1e683d5">
     <link rel="stylesheet" href="css/tailwind-built.css?v=c0926cfba4"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
-    <link rel="stylesheet" href="css/interface-preserve.css?v=20260715-equip-bless1">
+    <link rel="stylesheet" href="css/interface-preserve.css?v=20260715-equip-reference2">
     <style>
       .four-tabs button[onclick="fourShow('element')"]{display:none!important}
       .four-craft-card{background:#0f172a;border:1px solid #475569;border-radius:10px;padding:14px;margin:10px 0;clear:both}
@@ -322,8 +322,8 @@
         <!-- 右側：清單面板 -->
         <div id="col-right" class="w-[380px] flex flex-col gap-3">
             <div class="panel p-2 grid grid-cols-3 gap-2 bg-slate-800 tab-bar">
-                <button class="btn active text-base py-2 font-bold px-0" onclick="closeEquipmentWindow(); switchTab('stats', this)">能力</button>
-                <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('equip', this); openEquipmentWindow(0)" title="開啟圖像裝備視窗">裝備</button>
+                <button class="btn active text-base py-2 font-bold px-0" onclick="switchTab('stats', this)">能力</button>
+                <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('equip', this)" title="開啟圖像裝備視窗">裝備</button>
                 <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('skill', this)">技能</button>
                 <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('weapons', this)">武器</button>
                 <button class="btn text-base py-2 font-bold px-0" onclick="switchTab('armors', this)">防具</button>
@@ -462,7 +462,7 @@
         </div>
     </div>
 
-    <section id="equipment-window" class="equipment-window hidden" aria-label="角色裝備" aria-hidden="true"><div id="equipment-window-frame" class="equipment-window-frame"><img class="equipment-window-bg" src="assets/equipment-window-bg.png" alt="" draggable="false"><div id="equipment-window-drag" class="equipment-window-drag"></div><div id="equipment-window-page-label" class="equipment-window-page-label">1 / 2　一般裝備</div><button id="equipment-window-close" class="equipment-window-close" type="button" aria-label="關閉裝備視窗"></button><button id="equipment-window-next" class="equipment-window-arrow equipment-window-next" type="button" aria-label="下一頁：席琳遺骸"></button><button id="equipment-window-prev" class="equipment-window-arrow equipment-window-prev" type="button" aria-label="上一頁：一般裝備"></button><div id="equipment-window-stats" class="equipment-window-stats"></div><div id="equipment-window-slots" class="equipment-window-slots"></div><div id="equipment-morph-snapshot" class="equipment-morph-snapshot hidden" aria-live="polite"><div id="equipment-morph-name" class="equipment-morph-name"></div><img id="equipment-morph-image" class="equipment-morph-image" alt="" draggable="false"><div id="equipment-morph-bonus" class="equipment-morph-bonus"></div></div><aside id="equipment-side-panel" class="equipment-side-panel hidden"><header class="equipment-side-header"><div><strong id="equipment-side-title">武器</strong><small>單擊查看・雙擊直接裝備</small></div><button id="equipment-side-close" type="button">✕</button></header><div id="equipment-side-list" class="equipment-side-list"></div></aside></div></section>
+    <section id="equipment-window" class="equipment-window hidden" aria-label="角色裝備" aria-hidden="true"><div id="equipment-window-frame" class="equipment-window-frame"><img class="equipment-window-bg" src="assets/equipment-window-bg.png" alt="" draggable="false"><div id="equipment-window-drag" class="equipment-window-drag"></div><div id="equipment-window-page-label" class="equipment-window-page-label">1 / 2　一般裝備</div><button id="equipment-window-close" class="equipment-window-close" type="button" aria-label="關閉裝備視窗"></button><button id="equipment-window-next" class="equipment-window-arrow equipment-window-next" type="button" aria-label="第 2 頁：席琳遺骸"></button><button id="equipment-window-prev" class="equipment-window-arrow equipment-window-prev" type="button" aria-label="第 1 頁：一般裝備"></button><div id="equipment-window-weight" class="equipment-window-weight" aria-live="polite">負重 0 %</div><div id="equipment-window-stats" class="equipment-window-stats"></div><div id="equipment-window-slots" class="equipment-window-slots"></div><div id="equipment-morph-snapshot" class="equipment-morph-snapshot hidden" aria-live="polite"><div id="equipment-morph-name" class="equipment-morph-name"></div><img id="equipment-morph-image" class="equipment-morph-image" alt="" draggable="false"><div id="equipment-morph-bonus" class="equipment-morph-bonus"></div></div><aside id="equipment-side-panel" class="equipment-side-panel hidden"><header class="equipment-side-header"><div><strong id="equipment-side-title">武器</strong><small>單擊查看・雙擊直接裝備</small></div><button id="equipment-side-close" type="button">✕</button></header><div id="equipment-side-list" class="equipment-side-list"></div></aside></div></section>
     <section id="warehouse-window" class="warehouse-window hidden" aria-label="共用倉庫" aria-hidden="true"><div id="warehouse-window-frame" class="warehouse-window-frame"><header id="warehouse-window-drag" class="warehouse-window-header"><div><h2>共用倉庫</h2><span>背包與倉庫之間存入／取出物品</span></div><button id="warehouse-window-close" type="button">Close</button></header><div id="warehouse-window-content" class="warehouse-window-content"></div></div></section>
 
     <!-- 物品操作 Modal -->
@@ -577,8 +577,8 @@ Object.assign(DB.items.tsh_heroic,      {img:'assets/items/shirts/tsh_heroic.png
 <script src="js/07-skills-cast.js?v=20260712-chocolate-auto1"></script>
 <script src="js/08-items-equip.js?v=20260715-loot-source1"></script>
 <script src="js/09-vfx-render.js?v=20260712-ui-polish1"></script>
-<script src="js/10-ui-tabs.js?v=20260715-equip-visual1"></script>
-<script src="js/11-world-map.js?v=20260715-bian-auto1"></script>
+<script src="js/10-ui-tabs.js?v=20260715-equip-embedded2"></script>
+<script src="js/11-world-map.js?v=20260715-bian-three-target2"></script>
 <script src="js/12-npc-quests.js?v=20260713-sherine-remains1"></script>
 <script src="js/13-shop-save.js?v=20260713-sherine-equip17"></script>
 <script src="js/14-craft-pandora.js?v=20260715-bag-tooltip1"></script>
@@ -586,7 +586,7 @@ Object.assign(DB.items.tsh_heroic,      {img:'assets/items/shirts/tsh_heroic.png
 <script src="js/16-equip-book.js?v=82681c63f6"></script>
 <script src="js/18-misc-book.js?v=08b573e9ba"></script>
 <script src="js/17-audio.js?v=9da63551c8"></script>
-<script src="js/19-equipment-window.js?v=20260715-equip-relic-pages1"></script>
+<script src="js/19-equipment-window.js?v=20260715-equip-reference2"></script>
 <script src="js/20-warehouse-window.js?v=6b884f76fa"></script>
 <script src="js/21-relic-book.js?v=bdeff66680"></script>
 <script src="js/24-adventure-interface.js?v=20260715-bag-scroll1"></script>

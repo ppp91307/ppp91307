@@ -1885,6 +1885,7 @@ function switchTab(t, btn) {
     // 👇 更新陣列名單
     ['stats', 'equip', 'weapons', 'skill', 'armors', 'items', 'audit', 'automation'].forEach(id => { let _e = document.getElementById(`tab-${id}`); if(_e) _e.classList.add('hidden'); });   // 🔧 v2.6.74 自動化設定改分頁內嵌（tab-automation）
     document.getElementById(`tab-${t}`).classList.remove('hidden');
+    if(typeof setEquipmentPanelEmbedded === 'function') setEquipmentPanelEmbedded(t === 'equip');
     if(t === 'audit' && typeof renderAuditTab === 'function') renderAuditTab();
 }
 

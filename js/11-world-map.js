@@ -1065,6 +1065,9 @@ function _bianTargetMatched(item, targetKey) {
     if (p[0] === 'bless') return p[1] === 'blessed' ? item.bless === true : item.bless === p[1];
     return false;
 }
+function _bianTargetsMatched(item, targetKeys) {
+    return targetKeys.length > 0 && targetKeys.every(key => _bianTargetMatched(item, key));
+}
 function _bianTargetLabel(targetKey) {
     if (!targetKey) return '隨機詞綴';
     let p = targetKey.split(':');
@@ -1080,16 +1083,17 @@ function _bianConsumeScroll(scrollId) {
     if (count > 1) sc.cnt = count - 1; else player.inv.splice(idx, 1);
     return true;
 }
-function doBianBless(slotKey, targetKey) {
+function doBianBless(slotKey, attrTarget, ancTarget, blessTarget) {
     let item = player.eq[slotKey];
     if (!item) { logSys('該欄位沒有裝備。'); return; }
     if (item.bless === 'cursed') { logSys('<span class="text-red-400 font-bold">被詛咒的裝備無法施加祝福，請先解除詛咒。</span>'); return; }   // 🔧 詛咒裝備不可祝福
     let isAcc = ['ring1','ring2','ring3','ring4','ear1','ear2','amulet','belt'].includes(slotKey);
     let scrollId = (slotKey === 'wpn' || slotKey === 'offwpn') ? 'new_item_bless_wpn' : (isAcc ? 'new_item_bless_acc' : 'new_item_bless_arm');   // ⚔️ 副手武器(offwpn)同主武器，使用「賦予武器祝福卷軸」
     let scrollNm = { 'new_item_bless_wpn':'賦予武器祝福卷軸', 'new_item_bless_arm':'賦予盔甲祝福卷軸', 'new_item_bless_acc':'賦予飾品祝福卷軸' }[scrollId];
-    targetKey = targetKey || '';
-    if (targetKey && _bianTargetMatched(item, targetKey)) {
-        logSys(`目前裝備已經具有目標詞綴「${_bianTargetLabel(targetKey)}」，沒有消耗卷軸。`);
+    let targetKeys = [attrTarget, ancTarget, blessTarget].filter(Boolean);
+    let targetLabel = targetKeys.map(_bianTargetLabel).join(' ＋ ');
+    if (_bianTargetsMatched(item, targetKeys)) {
+        logSys(`目前裝備已經同時具有三項目標「${targetLabel}」，沒有消耗卷軸。`);
         return;
     }
     let attempts = 0, msg = '', success = false;
@@ -1097,15 +1101,15 @@ function doBianBless(slotKey, targetKey) {
         if (!_bianConsumeScroll(scrollId)) break;
         msg = _bianRollOnce(item);
         attempts++;
-        success = !targetKey || _bianTargetMatched(item, targetKey);
-    } while (targetKey && !success && attempts < 100000);
+        success = !targetKeys.length || _bianTargetsMatched(item, targetKeys);
+    } while (targetKeys.length && !success && attempts < 100000);
     if (!attempts) { logSys(`<span class="text-red-400">缺少 ${scrollNm}。</span>`); return; }
     if (DB.items[item.id] && DB.items[item.id].grantSkills) renderSkillSelects();
     calcStats(); updateUI(); renderTabs(true); saveGame();
-    if (targetKey) {
+    if (targetKeys.length) {
         logSys(success
-            ? `碧恩自動祝福完成：消耗 ${attempts} 張 ${scrollNm}，取得「<span class="text-emerald-300 font-bold">${_bianTargetLabel(targetKey)}</span>」→ ${getItemFullName(item)}。`
-            : `<span class="text-red-400">自動祝福停止：已消耗 ${attempts} 張 ${scrollNm}，卷軸用完仍未取得「${_bianTargetLabel(targetKey)}」。</span>目前：${getItemFullName(item)}。`);
+            ? `碧恩自動祝福完成：消耗 ${attempts} 張 ${scrollNm}，三項能力全部達成「<span class="text-emerald-300 font-bold">${targetLabel}</span>」→ ${getItemFullName(item)}。`
+            : `<span class="text-red-400">自動祝福停止：已消耗 ${attempts} 張 ${scrollNm}，卷軸用完仍未同時取得「${targetLabel}」。</span>目前：${getItemFullName(item)}。`);
     } else logSys(`碧恩為你的裝備施加祝福 → ${getItemFullName(item)}（${msg}）。`);
     let _e = document.getElementById('interaction-content'); if (_e) renderBianBless(_e);
 }
@@ -1121,20 +1125,25 @@ function doBianUncurse(slotKey) {
     logSys(`碧恩為你的裝備解除了詛咒 → ${getItemFullName(item)}。`);
     let _e = document.getElementById('interaction-content'); if (_e) renderBianBless(_e);
 }
-function _bianTargetOptions() {
-    let attr = Object.keys(ATTR_AFFIX).map(k => `<option value="attr:${k}">${ATTR_AFFIX[k].n}</option>`).join('');
-    return `<option value="">單次隨機</option>
-        <optgroup label="屬性詞綴">${attr}</optgroup>
-        <optgroup label="遠古詞綴">
-            <option value="anc:ancient">${ancName(true)}</option>
-            <option value="anc:eternal">${ancName('eternal')}</option>
-            <option value="anc:immortal">${ancName('immortal')}</option>
-            <option value="anc:primordial">${ancName('primordial')}</option>
-        </optgroup>
-        <optgroup label="祝福詞綴">
-            <option value="bless:blessed">${blessName(true)}</option>
-            <option value="bless:cursed">${blessName('cursed')}</option>
-        </optgroup>`;
+function _bianAttrOptions() {
+    return `<option value="">屬性：未指定</option>${Object.keys(ATTR_AFFIX).map(k => `<option value="attr:${k}">屬性：${ATTR_AFFIX[k].n}</option>`).join('')}`;
+}
+function _bianAncOptions() {
+    return `<option value="">遠古：未指定</option>
+        <option value="anc:ancient">遠古：${ancName(true)}</option>
+        <option value="anc:eternal">遠古：${ancName('eternal')}</option>
+        <option value="anc:immortal">遠古：${ancName('immortal')}</option>
+        <option value="anc:primordial">遠古：${ancName('primordial')}</option>`;
+}
+function _bianBlessOptions() {
+    return `<option value="">祝福：未指定</option>
+        <option value="bless:blessed">祝福：${blessName(true)}</option>
+        <option value="bless:cursed">祝福：${blessName('cursed')}</option>`;
+}
+function _bianUpdateAutoButton(slotKey, slotName) {
+    let values = ['attr','anc','bless'].map(kind => document.getElementById(`bian-${kind}-${slotKey}`)).filter(Boolean).map(el => el.value);
+    let button = document.getElementById(`bian-go-${slotKey}`);
+    if (button) button.textContent = values.some(Boolean) ? '開始洗鍊' : `祝福${slotName}`;
 }
 function renderBianBless(el) {
     let slots = [{k:'wpn',n:'武器'},{k:'shield',n:'副手'},{k:'helm',n:'頭盔'},{k:'armor',n:'盔甲'},{k:'shin',n:'脛甲'},{k:'tshirt',n:'T恤'},{k:'cloak',n:'斗篷'},{k:'gloves',n:'手套'},{k:'boots',n:'長靴'},{k:'amulet',n:'項鍊'},{k:'ear1',n:'耳環 I'},{k:'ear2',n:'耳環 II'},{k:'ring1',n:'戒指 I'},{k:'ring2',n:'戒指 II'},{k:'ring3',n:'戒指 III'},{k:'ring4',n:'戒指 IV'},{k:'belt',n:'腰帶'}];   // 🦴 寵物裝備不支援祝福，故不列入
@@ -1146,10 +1155,13 @@ function renderBianBless(el) {
         let _cursed = !!(it && it.bless === 'cursed');
         let _uncurse = _cursed ? `<button class="btn py-1 px-2 text-sm font-bold shrink-0 bg-cyan-800 border-cyan-500 text-cyan-100" onclick="doBianUncurse('${sl.k}')">解除詛咒</button>` : '';
         // 🔧 詛咒裝備：祝福按鈕變灰禁用
-        let _targetId = `bian-target-${sl.k}`;
-        let _targetSelect = (it && !_cursed) ? `<select id="${_targetId}" class="bian-target-select" title="選擇目標後會連續消耗卷軸，直到洗出該能力或卷軸用完" onchange="this.nextElementSibling.textContent=this.value?'自動祝福':'祝福${sl.n}'">${_bianTargetOptions()}</select>` : '';
+        let _targetSelect = (it && !_cursed) ? `<div class="bian-target-group">
+            <select id="bian-attr-${sl.k}" class="bian-target-select" onchange="_bianUpdateAutoButton('${sl.k}','${sl.n}')">${_bianAttrOptions()}</select>
+            <select id="bian-anc-${sl.k}" class="bian-target-select" onchange="_bianUpdateAutoButton('${sl.k}','${sl.n}')">${_bianAncOptions()}</select>
+            <select id="bian-bless-${sl.k}" class="bian-target-select" onchange="_bianUpdateAutoButton('${sl.k}','${sl.n}')">${_bianBlessOptions()}</select>
+        </div>` : '';
         let _blessBtn = (it && !_cursed)
-            ? `<button class="btn py-1 px-2 text-sm font-bold w-24 text-center bg-purple-800 border-purple-500 text-purple-100" onclick="doBianBless('${sl.k}',document.getElementById('${_targetId}').value)">祝福${sl.n}</button>`
+            ? `<button id="bian-go-${sl.k}" class="btn py-1 px-2 text-sm font-bold w-24 text-center bg-purple-800 border-purple-500 text-purple-100" onclick="doBianBless('${sl.k}',document.getElementById('bian-attr-${sl.k}').value,document.getElementById('bian-anc-${sl.k}').value,document.getElementById('bian-bless-${sl.k}').value)">祝福${sl.n}</button>`
             : `<button class="btn py-1 px-2 text-sm font-bold w-24 text-center bg-slate-700 border-slate-600 text-slate-400 cursor-not-allowed" disabled title="${_cursed ? '被詛咒的裝備需先解除詛咒' : ''}">${_cursed ? '🔒 詛咒中' : '祝福'+sl.n}</button>`;
         return `<div class="flex items-center justify-between gap-2 bg-slate-800/60 border border-slate-600 rounded p-2 text-sm">
             <span class="truncate"><b class="text-amber-300">${sl.n}</b>：${name}</span>
@@ -1158,7 +1170,7 @@ function renderBianBless(el) {
     }).join('');
     el.innerHTML = `
         <div class="flex flex-col gap-2 p-1">
-            <div class="text-slate-300 text-sm leading-relaxed">碧恩：我能為你的裝備灌注力量。選擇「單次隨機」只洗一次；選好目標詞綴再按「自動祝福」，會持續消耗對應卷軸，直到取得指定能力或卷軸用完。每次仍會在「屬性 / 遠古系 / 祝福」中隨機附加、取代或消除。</div>
+            <div class="text-slate-300 text-sm leading-relaxed">碧恩：每件裝備可分別指定「屬性、遠古、祝福」三個目標。選好後按「開始洗鍊」，會持續消耗對應卷軸，直到三項能力同時符合或卷軸用完；三欄都不指定則只隨機祝福一次。</div>
             <div class="text-xs text-slate-400">武器用 賦予武器祝福卷軸(持有 ${cnt('new_item_bless_wpn')})；防具用 賦予盔甲祝福卷軸(持有 ${cnt('new_item_bless_arm')})；飾品用 賦予飾品祝福卷軸(持有 ${cnt('new_item_bless_acc')})。含詛咒的裝備可用 解除詛咒的卷軸(持有 ${cnt('new_item_uncurse')}) 移除詛咒。</div>
             ${rows}
         </div>`;
