@@ -1,31 +1,44 @@
 // ===== 可拖曳雙頁角色裝備視窗 =====
 (function () {
+    const PAGE_NAMES = ['一般裝備', '席琳遺骸'];
     const PAGE_SLOTS = [
         [
-            { k: 'helm',    x: 76.2, y: 17.6, w: 11.6, h: 9.1 },
-            { k: 'amulet',  x: 63.6, y: 23.5, w: 11.4, h: 9.2 },
-            { k: 'tshirt',  x: 51.8, y: 35.8, w: 11.5, h: 9.4 },
-            { k: 'armor',   x: 64.1, y: 35.4, w: 11.5, h: 9.4 },
-            { k: 'cloak',   x: 76.4, y: 35.4, w: 11.5, h: 9.4 },
-            { k: 'ring1',   x: 39.7, y: 46.4, w: 10.6, h: 8.7 },
-            { k: 'wpn',     x: 39.9, y: 56.8, w: 11.4, h: 9.7 },
-            { k: 'gloves',  x: 52.9, y: 53.4, w: 11.1, h: 9.1 },
-            { k: 'belt',    x: 69.4, y: 45.6, w: 11.6, h: 9.1 },
-            { k: 'shield',  x: 83.9, y: 49.0, w: 11.7, h: 9.7 },
-            { k: 'ring2',   x: 83.0, y: 59.4, w: 11.5, h: 9.5 },
-            // 🦵 脛甲固定顯示在第一頁角色腿部旁；背景原本沒有黑框，因此由程式補上專屬欄位底框。
-            { k: 'shin',    x: 69.4, y: 68.2, w: 11.6, h: 9.1, visualFrame: true },
-            { k: 'boots',   x: 82.3, y: 84.9, w: 11.8, h: 10.0 }
+            { k: 'ear1',   n: '耳環 I',  x: 39.7, y: 17.6, w: 10.8, h: 9.1 },
+            { k: 'helm',   n: '頭盔',    x: 63.6, y: 17.6, w: 11.6, h: 9.1 },
+            { k: 'ear2',   n: '耳環 II', x: 83.0, y: 17.6, w: 11.0, h: 9.1 },
+            { k: 'amulet', n: '項鍊',    x: 63.6, y: 27.0, w: 11.4, h: 9.2 },
+            { k: 'tshirt', n: 'T恤',     x: 39.7, y: 35.4, w: 10.8, h: 9.4 },
+            { k: 'armor',  n: '盔甲',    x: 63.6, y: 37.0, w: 11.5, h: 9.4 },
+            { k: 'cloak',  n: '斗篷',    x: 83.0, y: 35.4, w: 11.0, h: 9.4 },
+            { k: 'wpn',    n: '武器',    x: 39.7, y: 47.0, w: 10.8, h: 9.5 },
+            { k: 'belt',   n: '腰帶',    x: 63.6, y: 48.0, w: 11.5, h: 9.2 },
+            { k: 'shield', n: '副手',    x: 83.0, y: 47.0, w: 11.0, h: 9.5 },
+            { k: 'ring1',  n: '戒指 I',  x: 39.7, y: 59.0, w: 10.8, h: 9.2 },
+            { k: 'shin',   n: '脛甲',    x: 63.6, y: 59.0, w: 11.5, h: 9.2, visualFrame: true },
+            { k: 'ring2',  n: '戒指 II', x: 83.0, y: 59.0, w: 11.0, h: 9.2 },
+            { k: 'ring3',  n: '戒指 III',x: 39.7, y: 70.5, w: 10.8, h: 9.2 },
+            { k: 'gloves', n: '手套',    x: 63.6, y: 70.5, w: 11.5, h: 9.2 },
+            { k: 'ring4',  n: '戒指 IV', x: 83.0, y: 70.5, w: 11.0, h: 9.2 },
+            { k: 'boots',  n: '長靴',    x: 63.6, y: 82.0, w: 11.8, h: 10.0 }
         ],
         [
-            { k: 'ear1',    x: 63.6, y: 23.5, w: 11.4, h: 9.2 },
-            { k: 'ear2',    x: 76.2, y: 17.6, w: 11.6, h: 9.1 },
-            { k: 'ring3',   x: 39.7, y: 46.4, w: 10.6, h: 8.7 },
-            { k: 'offwpn',  x: 51.8, y: 35.8, w: 11.5, h: 9.4 },
-            { k: 'pet',     x: 52.9, y: 53.4, w: 11.1, h: 9.1 },
-            { k: 'arrow',   x: 83.9, y: 49.0, w: 11.7, h: 9.7 },
-            { k: 'ring4',   x: 83.0, y: 59.4, w: 11.5, h: 9.5 },
-            { k: 'doll',    x: 82.3, y: 84.9, w: 11.8, h: 10.0 }
+            { k: 'sherine_horn',   n: '耳環 I',  x: 39.7, y: 17.6, w: 10.8, h: 9.1 },
+            { k: 'sherine_eye',    n: '頭盔',    x: 63.6, y: 17.6, w: 11.6, h: 9.1 },
+            { k: 'sherine_wing',   n: '耳環 II', x: 83.0, y: 17.6, w: 11.0, h: 9.1 },
+            { k: 'sherine_shell',  n: '項鍊',    x: 63.6, y: 27.0, w: 11.4, h: 9.2 },
+            { k: 'sherine_flesh',  n: 'T恤',     x: 39.7, y: 35.4, w: 10.8, h: 9.4 },
+            { k: 'sherine_blood',  n: '盔甲',    x: 63.6, y: 37.0, w: 11.5, h: 9.4 },
+            { k: 'sherine_fang',   n: '斗篷',    x: 83.0, y: 35.4, w: 11.0, h: 9.4 },
+            { k: 'sherine_claw',   n: '武器',    x: 39.7, y: 47.0, w: 10.8, h: 9.5 },
+            { k: 'sherine_vein',   n: '腰帶',    x: 63.6, y: 48.0, w: 11.5, h: 9.2 },
+            { k: 'sherine_scale',  n: '副手',    x: 83.0, y: 47.0, w: 11.0, h: 9.5 },
+            { k: 'sherine_tail',   n: '戒指 I',  x: 39.7, y: 59.0, w: 10.8, h: 9.2 },
+            { k: 'sherine_shin',   n: '脛甲',    x: 63.6, y: 59.0, w: 11.5, h: 9.2, visualFrame: true },
+            { k: 'sherine_soul',   n: '戒指 II', x: 83.0, y: 59.0, w: 11.0, h: 9.2 },
+            { k: 'sherine_hide',   n: '戒指 III',x: 39.7, y: 70.5, w: 10.8, h: 9.2 },
+            { k: 'sherine_heart',  n: '手套',    x: 63.6, y: 70.5, w: 11.5, h: 9.2 },
+            { k: 'sherine_marrow', n: '戒指 IV', x: 83.0, y: 70.5, w: 11.0, h: 9.2 },
+            { k: 'sherine_bone',   n: '長靴',    x: 63.6, y: 82.0, w: 11.8, h: 10.0 }
         ]
     ];
 
@@ -188,6 +201,8 @@
     function renderSlots() {
         if (typeof player === 'undefined' || !player || !player.eq) return;
         const host = el('equipment-window-slots');
+        const pageLabel = el('equipment-window-page-label');
+        if (pageLabel) pageLabel.textContent = `${page + 1} / ${PAGE_SLOTS.length}　${PAGE_NAMES[page]}`;
         host.innerHTML = '';
         PAGE_SLOTS[page].forEach(pos => {
             const item = player.eq[pos.k];
@@ -216,6 +231,10 @@
                     badge.textContent = '+' + item.en;
                     slot.appendChild(badge);
                 }
+                const equippedBadge = document.createElement('span');
+                equippedBadge.className = 'equipment-slot-equipped';
+                equippedBadge.textContent = 'E';
+                slot.appendChild(equippedBadge);
                 const fullName = document.createElement('span');
                 fullName.innerHTML = getItemFullName(item);
                 slot.title = fullName.textContent || fullName.innerText || data.n || item.id;
@@ -232,15 +251,13 @@
                     unequipItem(pos.k);
                 };
             } else {
-                slot.title = pos.k === 'shin' ? '脛甲：尚未裝備' : '尚未裝備';
-                if (pos.k === 'shin') {
-                    const emptyLabel = document.createElement('span');
-                    emptyLabel.textContent = '脛甲';
-                    emptyLabel.style.cssText = 'color:#768396;font:700 11px/1 sans-serif;text-shadow:0 1px 2px #000;pointer-events:none;';
-                    slot.appendChild(emptyLabel);
-                }
+                slot.title = `${pos.n || pos.k}：尚未裝備`;
+                const emptyLabel = document.createElement('span');
+                emptyLabel.className = 'equipment-slot-empty-label';
+                emptyLabel.textContent = pos.n || pos.k;
+                slot.appendChild(emptyLabel);
                 slot.onclick = function () {
-                    openEquipmentSidePanel((pos.k === 'wpn' || pos.k === 'offwpn' || pos.k === 'arrow') ? 'weapons' : 'armors');
+                    if (page === 0) openEquipmentSidePanel((pos.k === 'wpn' || pos.k === 'offwpn' || pos.k === 'arrow') ? 'weapons' : 'armors');
                 };
             }
             host.appendChild(slot);
@@ -347,9 +364,10 @@
         renderSidePanel();
     };
 
-    window.openEquipmentWindow = function () {
+    window.openEquipmentWindow = function (targetPage) {
         const win = el('equipment-window');
         if (!win) return;
+        if (Number.isInteger(targetPage)) page = Math.max(0, Math.min(PAGE_SLOTS.length - 1, targetPage));
         win.classList.remove('hidden');
         win.setAttribute('aria-hidden', 'false');
         refreshEquipmentWindow();
@@ -376,7 +394,7 @@
         if (!frame || !handle) return;
         el('equipment-window-close').onclick = closeEquipmentWindow;
         el('equipment-side-close').onclick = closeEquipmentSidePanel;
-        el('equipment-window-next').onclick = function () { if (page < 1) { page++; refreshEquipmentWindow(); } };
+        el('equipment-window-next').onclick = function () { if (page < PAGE_SLOTS.length - 1) { page++; refreshEquipmentWindow(); } };
         el('equipment-window-prev').onclick = function () { if (page > 0) { page--; refreshEquipmentWindow(); } };
 
         handle.addEventListener('pointerdown', function (event) {

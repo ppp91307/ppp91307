@@ -254,6 +254,16 @@ function renderTabs(force) {
 // 裝備分頁：負重標頭＋各部位欄（套裝/席琳套裝底色）。由 renderTabs 依 _dirty.eq 呼叫。
 function _renderEquipTab() {
     let eDiv = document.getElementById('tab-equip'); eDiv.innerHTML = '';
+    eDiv.innerHTML = `<div class="equipment-tab-launcher">
+        <div class="equipment-tab-launcher-title">角色裝備</div>
+        <div class="equipment-tab-launcher-actions">
+            <button class="btn" onclick="openEquipmentWindow(0)">一般裝備</button>
+            <button class="btn" onclick="openEquipmentWindow(1)">席琳遺骸</button>
+        </div>
+        <div class="equipment-tab-launcher-help">已改為圖像裝備欄。單擊裝備可開啟背包，雙擊已穿裝備可卸除；使用左右箭頭切換兩頁。</div>
+    </div>`;
+    if (typeof refreshEquipmentWindow === 'function') refreshEquipmentWindow();
+    return;
     { let _wd = player.d || {}; let _t = _wd.loadTier || 0; let _hdr = document.createElement('div'); _hdr.className = 'text-center py-0.5 mb-1 rounded bg-slate-900/60 border border-slate-700 text-sm font-bold leading-tight' + (_t >= 1 ? ' cursor-help' : ''); if (_t >= 1) { _hdr.title = _t === 1 ? '負重50%↑：HP/MP不自然恢復' : (_t === 2 ? '負重82%↑：HP/MP不自然恢復、停自動施法、攻速變慢' : '負重100%↑：HP/MP不自然恢復、停自動施法、攻速大幅變慢'); } _hdr.innerHTML = `<span class="text-slate-400">負重 </span><span class="${getLoadColor(_t)}">${_wd.weightPct||0}%</span>`; eDiv.appendChild(_hdr); }
     const slots = [{k:'wpn',n:'武器'}, ...((player.cls === 'warrior' && (player.skills.includes('sk_warrior_dualaxe') || player.eq.offwpn)) ? [{k:'offwpn',n:'副手武器'}] : []), {k:'shield',n:'副手'},{k:'helm',n:'頭盔'},{k:'armor',n:'盔甲'},{k:'shin',n:'脛甲'},{k:'tshirt',n:'T恤'},{k:'cloak',n:'斗篷'},{k:'gloves',n:'手套'},{k:'boots',n:'長靴'},{k:'amulet',n:'項鍊'},{k:'ear1',n:'耳環'},{k:'ear2',n:'耳環'},{k:'ring1',n:'戒指'},{k:'ring2',n:'戒指'},{k:'ring3',n:'戒指'},{k:'ring4',n:'戒指'},{k:'belt',n:'腰帶'},{k:'pet',n:'寵物裝備'},{k:'doll',n:'魔法娃娃'},{k:'arrow',n:'箭矢'}, ...SHERINE_REMAIN_SLOTS.map(x=>({k:x.key,n:x.n,sherineRemain:true}))];
     
