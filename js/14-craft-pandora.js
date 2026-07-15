@@ -1762,8 +1762,9 @@ window.onload = () => {
         let host = e.target && e.target.closest ? e.target.closest('.tip-host') : null;
         let ic = document.getElementById('interaction-content');
         let eb = document.getElementById('equip-book');
-        // 技能頁 host（data-tip-skill）與收集冊 host（data-tip-id）不限於 NPC 互動面板；其餘 host 仍限定於 interaction-content
-        let ok = host && ((ic && ic.contains(host)) || (eb && !eb.classList.contains('hidden') && eb.contains(host)) || host.hasAttribute('data-tip-skill') || host.hasAttribute('data-tip-id'));
+        let bag = host && host.closest ? host.closest('#tab-weapons, #tab-armors, #tab-items') : null;
+        // 技能頁、收集冊與武器／防具／道具背包可直接顯示 tooltip；其餘 host 仍限定於 NPC 互動面板。
+        let ok = host && ((ic && ic.contains(host)) || bag || (eb && !eb.classList.contains('hidden') && eb.contains(host)) || host.hasAttribute('data-tip-skill') || host.hasAttribute('data-tip-id'));
         if(!ok){ hideTip(); return; }
         let el = getTip();
         let tSkill = host.getAttribute('data-tip-skill');
