@@ -71,7 +71,7 @@
 
     function getSherineSlotIcon(slotKey) {
         const iconKey = SHERINE_SLOT_ICON[slotKey];
-        return iconKey ? `assets/icons/sherine/sherine_remain_${iconKey}.png?v=20260716` : '';
+        return iconKey ? `assets/icons/sherine/sherine_remain_${iconKey}.png?v=20260716b` : '';
     }
 
     // 🎬 v3.0.44 變身立繪動畫（用戶提供 morph.spr）：這 15 個變身用 assets/morphanim/<名>/morph_N.png 逐幀循環（8fps），取代舊 assets/morph/<名>.jpg 靜態立繪。其餘變身維持 .jpg 退回鏈。
