@@ -49,6 +49,31 @@
     let sideMode = null;
     let clickTimer = null;
 
+    const SHERINE_SLOT_ICON = {
+        sherine_claw: 'claw',
+        sherine_eye: 'eye',
+        sherine_blood: 'blood',
+        sherine_flesh: 'flesh',
+        sherine_heart: 'heart',
+        sherine_bone: 'bone',
+        sherine_fang: 'fang',
+        sherine_scale: 'scale',
+        sherine_horn: 'horn',
+        sherine_wing: 'wing',
+        sherine_tail: 'tail',
+        sherine_soul: 'soul',
+        sherine_hide: 'hide',
+        sherine_marrow: 'marrow',
+        sherine_vein: 'vein',
+        sherine_shell: 'shell',
+        sherine_shin: 'shin'
+    };
+
+    function getSherineSlotIcon(slotKey) {
+        const iconKey = SHERINE_SLOT_ICON[slotKey];
+        return iconKey ? `assets/icons/sherine/sherine_remain_${iconKey}.png?v=20260716` : '';
+    }
+
     // 🎬 v3.0.44 變身立繪動畫（用戶提供 morph.spr）：這 15 個變身用 assets/morphanim/<名>/morph_N.png 逐幀循環（8fps），取代舊 assets/morph/<名>.jpg 靜態立繪。其餘變身維持 .jpg 退回鏈。
     // 🎬 v3.0.46 ①大小統一：以「炎魔」畫布高(191px)為基準像素比例——顯示高 = 帶高 × 本形態畫布高/191（炎魔=剛好填滿帶·其餘等比例縮·同一像素倍率）；
     //          ②三層疊放：morph_s(影子·multiply·墊底) + morph(本體) + morph_w(武器特效·screen·最上)——三者 --multi 共畫布→同 rect 疊放即像素級對齊。
@@ -247,10 +272,18 @@
             }
             if (item && data) {
                 const img = document.createElement('img');
-                img.src = getIconUrl(data);
+                const sherineIcon = getSherineSlotIcon(pos.k);
+                img.src = sherineIcon || getIconUrl(data);
                 img.alt = data.n || pos.k;
                 img.draggable = false;
-                img.onerror = function () { this.style.display = 'none'; };
+                img.onerror = function () {
+                    if (sherineIcon && this.src.indexOf('/public/') === -1) {
+                        this.src = sherineIcon.replace('assets/', 'public/assets/');
+                        return;
+                    }
+                    this.onerror = null;
+                    this.style.display = 'none';
+                };
                 if (typeof getGlowClass === 'function') {
                     const glowClass = getGlowClass(item, data);
                     if (glowClass) img.classList.add(...glowClass.split(/\s+/).filter(Boolean));
